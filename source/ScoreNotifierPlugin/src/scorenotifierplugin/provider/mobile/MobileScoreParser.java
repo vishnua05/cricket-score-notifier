@@ -73,6 +73,14 @@ public class MobileScoreParser implements IScoreParser {
 		System.out.println(batsMenMatcher.group(3));
 		System.out.println(batsMenMatcher.group(4));
 		System.out.println(batsMenMatcher.group(5));
+		
+		batsMenSample = "Rajagopal Sathish 19(22) [86.36]";
+		String REGEX_BATSMEN = "(.*)( ([0-9]{1,3})).*";
+		batsMenMatcher = Pattern.compile(REGEX_BATSMEN).matcher(batsMenSample);
+		System.out.println(batsMenMatcher.matches());
+		System.out.println(batsMenMatcher.group(1));
+		System.out.println(batsMenMatcher.group(3));
+
 
 		String teamSample = "<p>Batting: Ken</p>";
 		Matcher teamMatcher = Pattern.compile(REGEX_BATTING_TEAM).matcher(teamSample);
@@ -94,6 +102,11 @@ public class MobileScoreParser implements IScoreParser {
 
 		String bowlingSample = "<p>Brett Lee 8-1-26-1</p>";
 		Matcher bowlingMatcher = Pattern.compile(REGEX_BOWLERS).matcher(bowlingSample);
+		System.out.println(bowlingMatcher.matches());
+		System.out.println(bowlingMatcher.group(1));
+		System.out.println(bowlingMatcher.group(2));
+		
+		bowlingMatcher = Pattern.compile(REGEX_BATSMEN).matcher(bowlingSample);
 		System.out.println(bowlingMatcher.matches());
 		System.out.println(bowlingMatcher.group(1));
 		System.out.println(bowlingMatcher.group(2));
