@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="scorenotifierplugin.preferences.ScoreNotifierPreferncePage"
+            id="ScoreNotifierPlugin.genralPreferences"
+            name="Score Notifier">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="scorenotifierplugin.preferences.ScoreNotifierPreferencesInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="ScoreNotifierPlugin.cricketActionSet"
+            label="Cricket"
+            visible="true">
+         <action
+               class="scorenotifierplugin.actions.ShowScoreCardAction"
+               id="scorenotifierplugin.actions.ShowScoreCardAction"
+               label="Show Score Card"
+               menubarPath="cricketMenu/additions"
+               style="push">
+         </action>
+         <menu
+               id="cricketMenu"
+               label="Cricket">
+         </menu>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="ScoreNotifierPlugin.CricketCategory"
+            name="Cricket">
+      </category>
+      <view
+            category="ScoreNotifierPlugin.CricketCategory"
+            class="scorenotifierplugin.ScoreCardView"
+            icon="icons/linux.png"
+            id="scorenotifierplugin.ScoreCardView"
+            name="Score Card"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.viewActions">
+      <viewContribution
+            id="scorenotifierplugin.ScoreCardViewContribution"
+            targetID="scorenotifierplugin.ScoreCardView">
+         <action
+               class="scorenotifierplugin.actions.StartSampleNotifierAction"
+               icon="icons/default.gif"
+               id="scorenotifierplugin.actions.StartSampleNotifierAction"
+               label="Test Score Notification"
+               style="push"
+               toolbarPath="additions">
+         </action>
+         <action
+               class="scorenotifierplugin.actions.ClearScoreCardAction"
+               icon="icons/Discard_Message.gif"
+               id="scorenotifierplugin.actions.ClearScoreCardAction"
+               label="Clear"
+               style="pulldown"
+               toolbarPath="additions">
+         </action>
+         <action
+               class="scorenotifierplugin.actions.StartScoreNotificationAction"
+               icon="icons/Launch.gif"
+               id="scorenotifierplugin.actions.StartScoreNotificationAction"
+               label="Start "
+               style="pulldown"
+               toolbarPath="additions">
+         </action>
+         <action
+               class="scorenotifierplugin.actions.OpenInExternalBrowserAction"
+               icon="icons/SystemInfo.gif"
+               id="scorenotifierplugin.actions.OpenInExternalBrowserAction"
+               label="Open (External Browser)"
+               style="pulldown"
+               toolbarPath="additions">
+         </action>
+         <action
+               class="scorenotifierplugin.actions.OpenInBrowserAction"
+               icon="icons/web.gif"
+               id="scorenotifierplugin.actions.OpenInBrowserAction"
+               label="Open"
+               style="pulldown"
+               toolbarPath="additions">
+         </action>
+         <action
+               class="scorenotifierplugin.actions.ShowPreferencesAction"
+               id="scorenotifierplugin.actions.ShowPreferencesAction"
+               label="Preferences"
+               menubarPath="additions"
+               style="push">
+         </action>
+         <action
+               class="scorenotifierplugin.actions.RefreshLiveMatchesAction"
+               id="scorenotifierplugin.actions.RefreshLiveMatchesAction"
+               label="Refresh Available Matches "
+               menubarPath="additions"
+               style="push">
+         </action>
+      </viewContribution>
+   </extension>
+
+</plugin>
