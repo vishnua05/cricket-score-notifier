@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ScoreNotifierPlugin
+Bundle-SymbolicName: ScoreNotifierPlugin;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: scorenotifierplugin.ScoreNotifierActivator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.forms;bundle-version="3.3.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: scorenotifierplugin
