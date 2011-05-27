@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
@@ -33,14 +35,15 @@ import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 
+import scorenotifierplugin.ScoreNotifier;
 import scorenotifierplugin.ScoreNotifierActivator;
 import scorenotifierplugin.preferences.ScoreNotifierPreferences;
 import scorenotifierplugin.provider.IScoreParser;
 import scorenotifierplugin.provider.ScoreNode;
-import scorenotifierplugin.provider.TestScoreProvider;
 
 public class NotifierDialog {
 
+	private static final String GOOGLE_QUERY_URL = "http://google.com/search?btnI=1&q=";
 	// how long the the tray popup is displayed after fading in (in
 	// milliseconds)
 	private static int DISPLAY_TIME = 20000;
@@ -71,7 +74,7 @@ public class NotifierDialog {
 	 * @param message
 	 * @param type
 	 */
-	public static void notify(ScoreNode scoreNode, final String overStats, final ScoreEvent scoreEvent, boolean toggle) {
+	public static void notify(final ScoreNode scoreNode, final String overStats, final ScoreEvent scoreEvent, boolean toggle) {
 		final Shell thisShell = new Shell(Display.getDefault().getActiveShell(), SWT.NO_FOCUS | SWT.ON_TOP);
 		thisShell.setText(scoreNode.getScore());
 		thisShell.setLayout(new FillLayout());
@@ -147,7 +150,6 @@ public class NotifierDialog {
 		sfd.height = 9;
 		sfd.setStyle(SWT.BOLD | SWT.ITALIC);
 		scoreLabel.setFont(FontCache.getFont(sfd));
-		scoreLabel.setToolTipText(getMultiLine(scoreNode.getCommentary()));
 
 		Hyperlink liveLink = new Hyperlink(header, SWT.NONE);
 		liveLink.setUnderlined(true);
@@ -157,13 +159,8 @@ public class NotifierDialog {
 		liveLink.addHyperlinkListener(new HyperlinkAdapter() {
 			@Override
 			public void linkActivated(HyperlinkEvent event) {
-				IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
-				try {
-					IWebBrowser browser = browserSupport.getExternalBrowser();
-					browser.openURL(new URL(TestScoreProvider.cricBuzzURL));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				String searchURL = GOOGLE_QUERY_URL + ScoreNotifier.getDisplayName(scoreNode.getMatchURL()) + " Cricbuzz Live Scorecard";
+				openBrowser(searchURL);
 			}
 		});
 		Font f = liveLink.getFont();
@@ -177,7 +174,7 @@ public class NotifierDialog {
 			StringTokenizer stringTokenizer = new StringTokenizer(batsMenStats, IScoreParser.BATSMEN_DELIMITER);
 			while (stringTokenizer.hasMoreElements()) {
 				Object object = (Object) stringTokenizer.nextElement();
-				createLabel(scoreNode, thisShell, container, object.toString(), false);
+				createLabel(thisShell, container, object.toString(), false);
 			}
 		}
 
@@ -199,7 +196,6 @@ public class NotifierDialog {
 				decoration = overStats.substring(overStats.indexOf('[') + 1, overStats.indexOf(']'));
 			}
 			messageLabel.setText(decoration);
-			messageLabel.setToolTipText(getMultiLine(scoreNode.getCommentary()));
 			messageLabel.addMouseListener(getMouseListener(thisShell));
 		}
 
@@ -213,16 +209,15 @@ public class NotifierDialog {
 			cfd.height = 9;
 			cfd.setStyle(SWT.ITALIC);
 			commentaryLabel.setFont(FontCache.getFont(cfd));
-			commentaryLabel.setToolTipText(getMultiLine(scoreNode.getCommentary()));
 			commentaryLabel.addMouseListener(getMouseListener(thisShell));
 		}
 		
 		if (scoreNode.getBowlerStats() != null && !scoreNode.isCommentaryNode()) {
-			createLabel(scoreNode, thisShell, container, scoreNode.getBowlerStats(), true);
+			createLabel(thisShell, container, scoreNode.getBowlerStats(), true);
 		}
 
 		if (overStats != null) {
-			createLabel(scoreNode, thisShell, container, overStats, false);
+			createLabel(thisShell, container, overStats, false);
 		}
 
 		Rectangle clientArea = Display.getDefault().getClientArea();
@@ -275,24 +270,46 @@ public class NotifierDialog {
 			}
 		}
 	}
+	
+	private static void openBrowser(String url) {
+		IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
+		try {
+			IWebBrowser browser = browserSupport.getExternalBrowser();
+			browser.openURL(new URL(url));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-	private static void createLabel(ScoreNode scoreNode, final Shell thisShell, final Composite container, String labelText, boolean bowler) {
-		Label label = new Label(container, SWT.WRAP);
-		Font font = label.getFont();
+	private static void createLabel(final Shell thisShell, final Composite container, final String labelText, boolean bowler) {
+		Hyperlink liveLink = new Hyperlink(container, SWT.NONE);
+		Font font = liveLink.getFont();
 		FontData tlfd = font.getFontData()[0];
 		tlfd.height = 10;
 		if (bowler) {
 			tlfd.setStyle(SWT.NORMAL);
 		}
-		label.setFont(FontCache.getFont(tlfd));
+		liveLink.setFont(FontCache.getFont(tlfd));
 		GridData gd = new GridData(GridData.FILL_BOTH);
 		gd.horizontalSpan = 2;
-		label.setLayoutData(gd);
-		label.setText(labelText);
-		label.addMouseListener(getMouseListener(thisShell));
-		label.setToolTipText(getMultiLine(scoreNode.getCommentary()));
+		liveLink.setLayoutData(gd);
+		liveLink.setText(labelText);
+		liveLink.addHyperlinkListener(new HyperlinkAdapter() {
+			@Override
+			public void linkActivated(HyperlinkEvent e) {
+				Matcher matcher = Pattern.compile(REGEX_PLAYER).matcher(labelText);
+				if (matcher.matches()) {
+					String playerName = matcher.group(1) + " Cricinfo";
+					String url = GOOGLE_QUERY_URL + playerName;
+					openBrowser(url);
+				}
+			}
+		});
+		liveLink.setToolTipText("Click to view player profile");
 	}
 
+	private static String REGEX_PLAYER = "(.*)( ([0-9]{1,3})).*";
+	
 	private static MouseListener getMouseListener(final Shell thisShell) {
 		return new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
@@ -399,41 +416,5 @@ public class NotifierDialog {
 		}
 	}
 
-	private static String getMultiLine(String string) {
-		string = string == null ? "" : string;
-		String actualString = string.trim();
-		String multiString = null;
-		int length = 60;
-		int beginIndex = 0;
-		int endIndex;
-		final char SPACE = ' ';
-		StringBuilder stringBuilder = new StringBuilder(""); //$NON-NLS-1$
-
-		while (true) {
-			endIndex = beginIndex + length;
-			if (actualString.length() <= length || !actualString.contains(" ")) { //$NON-NLS-1$
-				endIndex = actualString.length();
-				stringBuilder.append(actualString.substring(beginIndex, endIndex));
-				break;
-			}
-
-			for (; endIndex > 0; endIndex--) {
-				if (actualString.charAt(endIndex) == SPACE)
-					break;
-				continue;
-			}
-			boolean noSpace = (endIndex == 0);
-			if (noSpace) {
-				endIndex = beginIndex + length;
-			}
-			stringBuilder.append(actualString.substring(beginIndex, endIndex));
-			actualString = actualString.substring(endIndex + 1);
-			if (!noSpace) {
-				stringBuilder.append(System.getProperty("line.separator")); //$NON-NLS-1$
-			}
-		}
-		multiString = stringBuilder.toString();
-		return multiString;
-	}
 
 }
