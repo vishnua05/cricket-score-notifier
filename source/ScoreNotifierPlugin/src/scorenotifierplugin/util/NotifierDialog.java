@@ -159,7 +159,7 @@ public class NotifierDialog {
 		liveLink.addHyperlinkListener(new HyperlinkAdapter() {
 			@Override
 			public void linkActivated(HyperlinkEvent event) {
-				String searchURL = GOOGLE_QUERY_URL + ScoreNotifier.getDisplayName(scoreNode.getMatchURL()) + " Cricbuzz Live Scorecard";
+				String searchURL = GOOGLE_QUERY_URL + ScoreNotifier.getDisplayName(scoreNode.getMatchURL()) + " live cricbuzz scorecard";
 				openBrowser(searchURL);
 			}
 		});
@@ -193,7 +193,9 @@ public class NotifierDialog {
 			messageLabel.setLayoutData(gd);
 			messageLabel.setForeground(ColorMapper.getFontColor(scoreEvent));
 			if (preferences.notifyEveryOver() && !preferences.notifyEveryBall() && !preferences.notifyEveryRun() && scoreNode.isEndOfOver()) {
-				decoration = overStats.substring(overStats.indexOf('[') + 1, overStats.indexOf(']'));
+				if (overStats != null) {
+					decoration = overStats.substring(overStats.indexOf('[') + 1, overStats.indexOf(']'));
+				}
 			}
 			messageLabel.setText(decoration);
 			messageLabel.addMouseListener(getMouseListener(thisShell));
@@ -217,7 +219,14 @@ public class NotifierDialog {
 		}
 
 		if (overStats != null) {
-			createLabel(thisShell, container, overStats, false);
+			Label overStatsLabel = new Label(container, SWT.WRAP);
+			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(200, SWT.DEFAULT).grab(true, false).span(2, 1).applyTo(overStatsLabel);
+			overStatsLabel.setText(overStats);
+			Font cf = overStatsLabel.getFont();
+			FontData cfd = cf.getFontData()[0];
+			cfd.height = 10;
+			overStatsLabel.setFont(FontCache.getFont(cfd));
+			overStatsLabel.addMouseListener(getMouseListener(thisShell));
 		}
 
 		Rectangle clientArea = Display.getDefault().getClientArea();
