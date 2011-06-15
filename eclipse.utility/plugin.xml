@@ -26,7 +26,7 @@
             commandId="eclipse.utility.GoogleSearchCommand"
             contextId="org.eclipse.ui.contexts.dialogAndWindow"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M3+F">
+            sequence="M3+G">
       </key>
    </extension>
 
