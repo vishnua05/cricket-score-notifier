@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="utilityCategory"
+            name="Eclipse Utility">
+      </category>
+      <command
+            categoryId="utilityCategory"
+            id="eclipse.utility.GoogleSearchCommand"
+            name="Google Search">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="eclipse.utility.actions.GoogleSearchCommandHandler"
+            commandId="eclipse.utility.GoogleSearchCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="eclipse.utility.GoogleSearchCommand"
+            contextId="org.eclipse.ui.contexts.dialogAndWindow"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+F">
+      </key>
+   </extension>
+
+</plugin>
