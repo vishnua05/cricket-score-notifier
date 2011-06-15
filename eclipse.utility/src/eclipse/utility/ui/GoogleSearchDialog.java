@@ -17,10 +17,13 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
@@ -34,15 +37,23 @@ public class GoogleSearchDialog extends PopupDialog {
 
 	public GoogleSearchDialog(Shell parent) {
 		super(parent, SWT.RESIZE, true, true, true, true, true, "Google Search", "Search in google");
-		input.put("First", "12");
-		input.put("Second", "1234");
-		input.put("FirstThird", "412");
-		input.put("Fourthc", "124");
+		input.put("Eclipse", "12");
+		input.put("CricInfo", "1234");
+		input.put("Java Source Code", "412");
+		input.put("Cricket Score Notifier", "124");
 		
 	}
-
+	
 	@Override
 	protected Control createDialogArea(Composite parent) {
+		Composite composite = (Composite) super.createDialogArea(parent);
+		composite.setFont(parent.getFont());
+		createFilteredTreeViewer(composite);
+		return composite;
+	}
+
+
+	protected void createFilteredTreeViewer(Composite parent) {
 		GridDataFactory.fillDefaults().applyTo(parent);
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(parent);
 		int styleBits = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
@@ -55,6 +66,7 @@ public class GoogleSearchDialog extends PopupDialog {
 		treeViewer.setSorter(new ViewerSorter());
 		treeViewer.setInput(input);
 		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			@SuppressWarnings("rawtypes")
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				ISelection selection = event.getSelection();
@@ -66,7 +78,16 @@ public class GoogleSearchDialog extends PopupDialog {
 				}
 			}
 		});
-		return parent;
+		
+		final Text text = filteredTree.getFilterControl();
+		text.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				if (e.character == '\r') {
+					GoogleSearchCommandHandler.openBrowser(PlatformUI.getWorkbench(), text.getText());
+				}
+			}
+
+		});
 	}
 
 	private ILabelProvider getTreeLabelProvider() {
