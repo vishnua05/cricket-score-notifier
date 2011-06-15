@@ -18,7 +18,7 @@ public class GoogleSearchCommandHandler extends AbstractHandler implements IHand
 
 	private static final String GOOGLE_SEARCH_URL = "http://www.google.com/search?q=";
 	
-	@Override
+	
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		ISelection selection = workbench.getActiveWorkbenchWindow().getActivePage().getSelection();

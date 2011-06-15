@@ -44,7 +44,7 @@ public class GoogleSearchDialog extends PopupDialog {
 		
 	}
 	
-	@Override
+	
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 		composite.setFont(parent.getFont());
@@ -67,7 +67,7 @@ public class GoogleSearchDialog extends PopupDialog {
 		treeViewer.setInput(input);
 		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@SuppressWarnings("rawtypes")
-			@Override
+			
 			public void doubleClick(DoubleClickEvent event) {
 				ISelection selection = event.getSelection();
 				if (selection instanceof IStructuredSelection) {
@@ -92,28 +92,27 @@ public class GoogleSearchDialog extends PopupDialog {
 
 	private ILabelProvider getTreeLabelProvider() {
 		return new ILabelProvider() {
-			@Override
+			
 			public void removeListener(ILabelProviderListener listener) {
 				
 			}
 			
-			@Override
+			
 			public boolean isLabelProperty(Object element, String property) {
 				return false;
 			}
 			
-			@Override
+			
 			public void dispose() {
-				// TODO Auto-generated method stub
 				
 			}
 			
-			@Override
+			
 			public void addListener(ILabelProviderListener listener) {
 				
 			}
 			
-			@Override
+			
 			@SuppressWarnings("rawtypes")
 			public String getText(Object element) {
 				if (element instanceof Entry) {
@@ -123,7 +122,7 @@ public class GoogleSearchDialog extends PopupDialog {
 				return null;
 			}
 			
-			@Override
+			
 			public Image getImage(Object element) {
 				return null;
 			}
@@ -132,32 +131,32 @@ public class GoogleSearchDialog extends PopupDialog {
 
 	private ITreeContentProvider getTreeContentProvider() {
 		return new ITreeContentProvider() {
-			@Override
+			
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 				
 			}
 			
-			@Override
+			
 			public void dispose() {
 				
 			}
 			
-			@Override
+			
 			public boolean hasChildren(Object element) {
 				return false;
 			}
 			
-			@Override
+			
 			public Object getParent(Object element) {
 				return null;
 			}
 			
-			@Override
+			
 			public Object[] getElements(Object inputElement) {
 				return input.entrySet().toArray();
 			}
 			
-			@Override
+			
 			public Object[] getChildren(Object parentElement) {
 				return null;
 			}
