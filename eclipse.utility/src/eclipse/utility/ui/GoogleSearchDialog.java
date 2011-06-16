@@ -32,16 +32,11 @@ import eclipse.utility.Activator;
 import eclipse.utility.actions.GoogleSearchCommandHandler;
 
 public class GoogleSearchDialog extends PopupDialog {
-
 	private HashMap<String, String> input = new HashMap<String, String>();
-
+	
 	public GoogleSearchDialog(Shell parent) {
 		super(parent, SWT.RESIZE, true, true, true, true, true, "Google Search", "Search in google");
-		input.put("Eclipse", "12");
-		input.put("CricInfo", "1234");
-		input.put("Java Source Code", "412");
-		input.put("Cricket Score Notifier", "124");
-		
+		input.putAll(GoogleSearchCommandHandler.directLinks);
 	}
 	
 	
@@ -117,7 +112,8 @@ public class GoogleSearchDialog extends PopupDialog {
 			public String getText(Object element) {
 				if (element instanceof Entry) {
 					Entry entry = (Entry) element;
-					return entry.getKey() + "[" + entry.getValue() + "]";
+					String tail = entry.getValue() != null ? "[" + entry.getValue() + "]" : "";
+					return entry.getKey() + tail;
 				}
 				return null;
 			}

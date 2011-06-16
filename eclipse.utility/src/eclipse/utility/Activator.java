@@ -1,5 +1,8 @@
 package eclipse.utility;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -45,6 +48,27 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static Activator getDefault() {
 		return plugin;
+	}
+	
+	
+	public void logAndShowException(Exception e) {
+		logAndShowException(null, e);
+	}
+	
+	public void logAndShowException(String message, Exception e) {
+		IStatus status = logException(message, e);
+		ErrorDialog.openError(null, "Exception", status.getMessage(), status);
+	}
+	
+	public IStatus logException(Exception e) {
+		return logException(null, e);
+	}
+	
+	public IStatus logException(String message, Exception e) {
+		message = message == null ? e.getMessage() : message;
+		IStatus status = new Status(IStatus.ERROR, PLUGIN_ID, message, e);
+		getLog().log(status);
+		return status;
 	}
 
 }
