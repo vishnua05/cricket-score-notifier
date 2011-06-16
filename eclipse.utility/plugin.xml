@@ -12,12 +12,21 @@
             id="eclipse.utility.GoogleSearchCommand"
             name="Google Search">
       </command>
+      <command
+            categoryId="utilityCategory"
+            id="eclipse.utility.OpenResourceLocationCommand"
+            name="Open File Location">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
             class="eclipse.utility.actions.GoogleSearchCommandHandler"
             commandId="eclipse.utility.GoogleSearchCommand">
+      </handler>
+      <handler
+            class="eclipse.utility.actions.OpenResourceLocationHandler"
+            commandId="eclipse.utility.OpenResourceLocationCommand">
       </handler>
    </extension>
    <extension
@@ -27,6 +36,12 @@
             contextId="org.eclipse.ui.contexts.dialogAndWindow"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+G">
+      </key>
+      <key
+            commandId="eclipse.utility.OpenResourceLocationCommand"
+            contextId="org.eclipse.ui.contexts.dialogAndWindow"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+L">
       </key>
    </extension>
 
