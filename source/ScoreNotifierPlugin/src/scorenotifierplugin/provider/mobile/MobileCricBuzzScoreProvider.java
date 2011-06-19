@@ -19,7 +19,7 @@ public class MobileCricBuzzScoreProvider implements IScoreProvider {
 		previousNodes.remove(matchURL);
 	}
 
-	public List<String> getMatchURLs() {
+	public List<String> getMatchUIDs() {
 		if (liveMatches == null) {
 			liveMatches = FeedReader.getAvailableMatches();
 		}

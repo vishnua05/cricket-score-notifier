@@ -30,6 +30,8 @@ public class ScoreNotifier {
 	protected static final String DELIMITER = ", ";
 	private static SimpleDateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss");
 	private ILogger logger;
+	private static final String GOOGLE_QUERY_URL = "http://google.com/search?btnI=1&q=";
+
 
 	private IScoreProvider scoreProvider;
 	private Set<String> activeURLs = new LinkedHashSet<String>();
@@ -42,7 +44,7 @@ public class ScoreNotifier {
 	}
 
 	public List<String> getAvailableURLs() {
-		return scoreProvider.getMatchURLs();
+		return scoreProvider.getMatchUIDs();
 	}
 
 	public Set<String> getActiveURLs() {
@@ -56,6 +58,10 @@ public class ScoreNotifier {
 			displayName = "Sample Match";
 		}
 		return displayName;
+	}
+	
+	public static String getMatchURL(String displayName) {
+		return GOOGLE_QUERY_URL + displayName +" live cricket scorecard";
 	}
 
 	public void toggleNotifier(String matchURL) {

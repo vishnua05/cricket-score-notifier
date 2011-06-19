@@ -6,7 +6,7 @@ public interface IScoreProvider {
 
 	ScoreNode getScore(String matchURL) throws EndOfScoreException;
 
-	List<String> getMatchURLs();
+	List<String> getMatchUIDs();
 
 	void cleanupNodes(String matchURL);
 	

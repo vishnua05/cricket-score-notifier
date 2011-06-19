@@ -46,7 +46,7 @@ public class TestScoreProvider implements IScoreProvider {
 
 	}
 	
-	public List<String> getMatchURLs() {
+	public List<String> getMatchUIDs() {
 		return urls;
 	}
 
