@@ -109,7 +109,9 @@ public class GoogleSearchDialog extends PopupDialog {
 					}
 					
 				});
-				text.setText(initialText);
+				if (initialText != null) {
+					text.setText(initialText);
+				}
 			}
 		});
 
