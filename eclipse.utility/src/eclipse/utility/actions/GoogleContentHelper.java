@@ -24,7 +24,7 @@ public class GoogleContentHelper {
 	private static final String NODE_SUGGESTION = "suggestion";
 	private static final String ATTR_DATA = "data";
 
-	public static synchronized List<String> getContentProposals(String input) {
+	public static List<String> getContentProposals(String input) {
 		List<String> contentProposals = new ArrayList<String>();
 		try {
 			input = input.replace(" ", "+");

@@ -39,11 +39,7 @@ public class GoogleSearchCommandHandler extends AbstractHandler implements IHand
 		if (selection instanceof ITextSelection) {
 			queryText = ((ITextSelection) selection).getText();
 		}
-		if (queryText != null && queryText.trim().length() > 0) {
-			openBrowser(workbench, queryText);
-		} else {
-			new GoogleSearchDialog(null).open();
-		}
+		new GoogleSearchDialog(queryText).open();
 
 		return null;
 	}

@@ -26,7 +26,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.FilteredTree;
@@ -38,10 +37,12 @@ import eclipse.utility.actions.GoogleSearchCommandHandler;
 
 public class GoogleSearchDialog extends PopupDialog {
 	private HashMap<String, String> input = new HashMap<String, String>();
+	private String initialText;
 	
-	public GoogleSearchDialog(Shell parent) {
-		super(parent, SWT.RESIZE, true, true, true, true, true, "Google Search", "Search in google");
+	public GoogleSearchDialog(String initialText) {
+		super(null, SWT.RESIZE, true, true, true, true, true, "Google Search", "Search in google");
 		input.putAll(GoogleSearchCommandHandler.directLinks);
+		this.initialText = initialText;
 	}
 	
 	
@@ -83,17 +84,20 @@ public class GoogleSearchDialog extends PopupDialog {
 		text.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
 				if (e.character == '\r') {
-					GoogleSearchCommandHandler.openBrowser(PlatformUI.getWorkbench(), text.getText());
+					if ((e.stateMask & SWT.CTRL) != 0) {
+						GoogleSearchCommandHandler.openBrowser(PlatformUI.getWorkbench(), text.getText(), true);
+					} else  {
+						GoogleSearchCommandHandler.openBrowser(PlatformUI.getWorkbench(), text.getText());
+					}
 				}
 			}
 
 		});
 		
 		Display.getDefault().asyncExec(new Runnable() {
-			@Override
 			public void run() {
 				text.addModifyListener(new ModifyListener() {
-					@Override
+					
 					public void modifyText(ModifyEvent e) {
 						List<String> contentProposals = GoogleContentHelper.getContentProposals(text.getText());
 						input.clear();
@@ -103,12 +107,15 @@ public class GoogleSearchDialog extends PopupDialog {
 						}
 						treeViewer.refresh();
 					}
+					
 				});
+				text.setText(initialText);
 			}
 		});
 
 	}
-
+	
+	
 	private ILabelProvider getTreeLabelProvider() {
 		return new ILabelProvider() {
 			
