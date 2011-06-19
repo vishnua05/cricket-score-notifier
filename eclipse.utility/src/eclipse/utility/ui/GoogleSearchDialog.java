@@ -1,6 +1,7 @@
 package eclipse.utility.ui;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -19,9 +20,12 @@ import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -29,6 +33,7 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 
 import eclipse.utility.Activator;
+import eclipse.utility.actions.GoogleContentHelper;
 import eclipse.utility.actions.GoogleSearchCommandHandler;
 
 public class GoogleSearchDialog extends PopupDialog {
@@ -50,12 +55,12 @@ public class GoogleSearchDialog extends PopupDialog {
 
 	protected void createFilteredTreeViewer(Composite parent) {
 		GridDataFactory.fillDefaults().applyTo(parent);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(parent);
+		GridDataFactory.fillDefaults().grab(true, true).hint(400, 200).applyTo(parent);
 		int styleBits = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
 		FilteredTree filteredTree = new FilteredTree(parent, styleBits, getPatternFilter(), true);
 		filteredTree.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(filteredTree);
-		TreeViewer treeViewer = filteredTree.getViewer();
+		final TreeViewer treeViewer = filteredTree.getViewer();
 		treeViewer.setContentProvider(getTreeContentProvider());
 		treeViewer.setLabelProvider(getTreeLabelProvider());
 		treeViewer.setSorter(new ViewerSorter());
@@ -83,6 +88,25 @@ public class GoogleSearchDialog extends PopupDialog {
 			}
 
 		});
+		
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				text.addModifyListener(new ModifyListener() {
+					@Override
+					public void modifyText(ModifyEvent e) {
+						List<String> contentProposals = GoogleContentHelper.getContentProposals(text.getText());
+						input.clear();
+						input.putAll(GoogleSearchCommandHandler.directLinks);
+						for (String string : contentProposals) {
+							input.put(string, null);
+						}
+						treeViewer.refresh();
+					}
+				});
+			}
+		});
+
 	}
 
 	private ILabelProvider getTreeLabelProvider() {
