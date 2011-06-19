@@ -19,17 +19,17 @@ public class ScoreNotifierPreferences {
 	private static final String NOTIFIER_COMMENTARY_UPDATE = "notifier_commentary_update";
 
 
-	private static final boolean DEFAULT_LOG_EVERY_BALL = true;
+	private static final boolean DEFAULT_LOG_EVERY_BALL = false;
 	private static final boolean DEFAULT_NOTIFY_EVERY_BALL = true;
 	private static final boolean DEFAULT_NOTIFY_EVERY_BOUNDARY = true;
 	private static final boolean DEFAULT_NOTIFY_EVERY_EXTRA = false;
 	private static final boolean DEFAULT_NOTIFY_EVERY_OVER = true;
 	private static final boolean DEFAULT_NOTIFY_EVERY_RUN = false;
 	private static final boolean DEFAULT_NOTIFY_EVERY_WICKET = true;
-	private static final boolean DEFAUTL_INVERT_NOTIFICATION_LOCATION = true;
+	private static final boolean DEFAUTL_INVERT_NOTIFICATION_LOCATION = false;
 	private static final int DEFAUTL_NOTIFIER_OFFSET = getDefaultOffset();
-	private static final int DEFAUTL_NOTIFIER_DISPLAY_TIME = 10000;
-	private static final boolean DEFAUTL_NOTIFIER_COMMENTARY_UPDATE  = true;
+	private static final int DEFAUTL_NOTIFIER_DISPLAY_TIME = 5000;
+	private static final boolean DEFAUTL_NOTIFIER_COMMENTARY_UPDATE  = false;
 
 
 

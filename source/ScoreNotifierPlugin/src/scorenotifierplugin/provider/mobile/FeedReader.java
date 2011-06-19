@@ -185,7 +185,7 @@ public class FeedReader {
 							Pattern pattern = Pattern.compile(IScoreParser.REGEX_COMMENTARY);
 							Matcher matcher = pattern.matcher(nextLine);
 							if (matcher.matches()) {
-								return matcher.group(1);
+								return matcher.group(1).trim();
 							}
 						} else {
 							break;

@@ -159,7 +159,7 @@ public class NotifierDialog {
 		liveLink.addHyperlinkListener(new HyperlinkAdapter() {
 			@Override
 			public void linkActivated(HyperlinkEvent event) {
-				String searchURL = GOOGLE_QUERY_URL + ScoreNotifier.getDisplayName(scoreNode.getMatchURL()) + " live cricbuzz scorecard";
+				String searchURL = ScoreNotifier.getMatchURL(scoreNode.getMatchURL());
 				openBrowser(searchURL);
 			}
 		});
@@ -232,7 +232,7 @@ public class NotifierDialog {
 		Rectangle clientArea = Display.getDefault().getClientArea();
 		boolean invertNotificationLocation = preferences.isInvertNotificationLocation();
 
-		int minWidth = container.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + clientArea.width / 25;
+		int minWidth = clientArea.width / 5;
 		int minHeight = container.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
 		thisShell.setSize(minWidth, minHeight);
 

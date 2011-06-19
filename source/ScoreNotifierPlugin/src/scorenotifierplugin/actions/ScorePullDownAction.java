@@ -26,14 +26,6 @@ public class ScorePullDownAction extends PullDownAction {
 	@Override
 	public void dispose() {
 		super.dispose();
-//		if (scoreNotifier != null) {
-//			if (!ScoreNotifierActivator.getDefault().getPreferences().logEveryBall()) {
-//				for (String matchURL : scoreNotifier.getActiveURLs()) {
-//					scoreNotifier.toggleNotifier(matchURL);
-//				}
-//				scoreNotifier = null;
-//			}
-//		}
 	}
 	
 	@Override

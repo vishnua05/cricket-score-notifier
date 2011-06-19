@@ -1,6 +1,5 @@
 package scorenotifierplugin.actions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ViewInBrowserAction extends ScorePullDownAction {
@@ -17,7 +16,7 @@ public class ViewInBrowserAction extends ScorePullDownAction {
 
 	@Override
 	protected List<String> getAvailableItems() {
-		List<String> availableItems = new ArrayList<String>();
+		List<String> availableItems = super.getAvailableItems();
 		availableItems.add(CRIC_BUZZ_URL);
 		availableItems.add(CRIC_INFO_URL);
 		availableItems.add(CRIC_BUZZ_FEED_URL);

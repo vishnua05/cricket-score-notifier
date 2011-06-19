@@ -63,7 +63,7 @@ public class CricBuzzScoreProvider implements IScoreProvider {
 
 	}
 
-	public List<String> getMatchURLs() {
+	public List<String> getMatchUIDs() {
 		if (matchURLs == null) {
 			List<Match> liveMatches = getLiveMatches();
 			matchURLs = new ArrayList<String>(liveMatches.size());

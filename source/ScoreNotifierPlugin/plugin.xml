@@ -63,6 +63,14 @@
                toolbarPath="additions">
          </action>
          <action
+               class="scorenotifierplugin.actions.OpenInBrowserAction"
+               icon="icons/web.gif"
+               id="scorenotifierplugin.actions.OpenInBrowserAction"
+               label="Open"
+               style="pulldown"
+               toolbarPath="additions">
+         </action>
+         <action
                class="scorenotifierplugin.actions.ClearScoreCardAction"
                icon="icons/Discard_Message.gif"
                id="scorenotifierplugin.actions.ClearScoreCardAction"
@@ -75,22 +83,6 @@
                icon="icons/Launch.gif"
                id="scorenotifierplugin.actions.StartScoreNotificationAction"
                label="Start "
-               style="pulldown"
-               toolbarPath="additions">
-         </action>
-         <action
-               class="scorenotifierplugin.actions.OpenInExternalBrowserAction"
-               icon="icons/SystemInfo.gif"
-               id="scorenotifierplugin.actions.OpenInExternalBrowserAction"
-               label="Open (External Browser)"
-               style="pulldown"
-               toolbarPath="additions">
-         </action>
-         <action
-               class="scorenotifierplugin.actions.OpenInBrowserAction"
-               icon="icons/web.gif"
-               id="scorenotifierplugin.actions.OpenInBrowserAction"
-               label="Open"
                style="pulldown"
                toolbarPath="additions">
          </action>
