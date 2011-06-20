@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -37,22 +41,22 @@ import eclipse.utility.actions.GoogleSearchCommandHandler;
 
 public class GoogleSearchDialog extends PopupDialog {
 	private HashMap<String, String> input = new HashMap<String, String>();
-	private String initialText;
-	
+	private String filterText;
+	private Text text;
+	private TreeViewer treeViewer;
+
 	public GoogleSearchDialog(String initialText) {
 		super(null, SWT.RESIZE, true, true, true, true, true, "Google Search", "Search in google");
 		input.putAll(GoogleSearchCommandHandler.directLinks);
-		this.initialText = initialText;
+		this.filterText = initialText;
 	}
-	
-	
+
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 		composite.setFont(parent.getFont());
 		createFilteredTreeViewer(composite);
 		return composite;
 	}
-
 
 	protected void createFilteredTreeViewer(Composite parent) {
 		GridDataFactory.fillDefaults().applyTo(parent);
@@ -61,138 +65,82 @@ public class GoogleSearchDialog extends PopupDialog {
 		FilteredTree filteredTree = new FilteredTree(parent, styleBits, getPatternFilter(), true);
 		filteredTree.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(filteredTree);
-		final TreeViewer treeViewer = filteredTree.getViewer();
-		treeViewer.setContentProvider(getTreeContentProvider());
-		treeViewer.setLabelProvider(getTreeLabelProvider());
+		treeViewer = filteredTree.getViewer();
+		treeViewer.setContentProvider(iTreeContentProvider);
+		treeViewer.setLabelProvider(iLabelProvider);
 		treeViewer.setSorter(new ViewerSorter());
 		treeViewer.setInput(input);
 		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			@SuppressWarnings("rawtypes")
-			
 			public void doubleClick(DoubleClickEvent event) {
 				ISelection selection = event.getSelection();
 				if (selection instanceof IStructuredSelection) {
 					Object firstElement = ((IStructuredSelection) selection).getFirstElement();
 					if (firstElement instanceof Entry) {
-                       GoogleSearchCommandHandler.openBrowser(PlatformUI.getWorkbench(), ((Entry) firstElement).getKey().toString());
+						GoogleSearchCommandHandler.openBrowser(PlatformUI.getWorkbench(), ((Entry) firstElement).getKey().toString());
 					}
 				}
 			}
 		});
-		
-		final Text text = filteredTree.getFilterControl();
+
+		text = filteredTree.getFilterControl();
 		text.addKeyListener(new KeyAdapter() {
 			public void keyReleased(KeyEvent e) {
 				if (e.character == '\r') {
 					if ((e.stateMask & SWT.CTRL) != 0) {
 						GoogleSearchCommandHandler.openBrowser(PlatformUI.getWorkbench(), text.getText(), true);
-					} else  {
+					} else {
 						GoogleSearchCommandHandler.openBrowser(PlatformUI.getWorkbench(), text.getText());
 					}
 				}
 			}
 
 		});
-		
+
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
-				text.addModifyListener(new ModifyListener() {
-					
-					public void modifyText(ModifyEvent e) {
-						List<String> contentProposals = GoogleContentHelper.getContentProposals(text.getText());
-						input.clear();
-						input.putAll(GoogleSearchCommandHandler.directLinks);
-						for (String string : contentProposals) {
-							input.put(string, null);
-						}
-						treeViewer.refresh();
-					}
-					
-				});
-				if (initialText != null) {
-					text.setText(initialText);
+				text.addModifyListener(modifyListener);
+				if (filterText != null) {
+					text.setText(filterText);
+					text.selectAll();
+					text.setFocus();
 				}
 			}
 		});
-
-	}
-	
-	
-	private ILabelProvider getTreeLabelProvider() {
-		return new ILabelProvider() {
-			
-			public void removeListener(ILabelProviderListener listener) {
-				
-			}
-			
-			
-			public boolean isLabelProperty(Object element, String property) {
-				return false;
-			}
-			
-			
-			public void dispose() {
-				
-			}
-			
-			
-			public void addListener(ILabelProviderListener listener) {
-				
-			}
-			
-			
-			@SuppressWarnings("rawtypes")
-			public String getText(Object element) {
-				if (element instanceof Entry) {
-					Entry entry = (Entry) element;
-					String tail = entry.getValue() != null ? "[" + entry.getValue() + "]" : "";
-					return entry.getKey() + tail;
-				}
-				return null;
-			}
-			
-			
-			public Image getImage(Object element) {
-				return null;
-			}
-		};
-	}
-
-	private ITreeContentProvider getTreeContentProvider() {
-		return new ITreeContentProvider() {
-			
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-				
-			}
-			
-			
-			public void dispose() {
-				
-			}
-			
-			
-			public boolean hasChildren(Object element) {
-				return false;
-			}
-			
-			
-			public Object getParent(Object element) {
-				return null;
-			}
-			
-			
-			public Object[] getElements(Object inputElement) {
-				return input.entrySet().toArray();
-			}
-			
-			
-			public Object[] getChildren(Object parentElement) {
-				return null;
-			}
-
 		
-		};
 	}
+
+	private ModifyListener modifyListener = new ModifyListener() {
+
+		public void modifyText(ModifyEvent e) {
+			filterText = text.getText();
+			proposalJob.schedule();
+
+		}
+
+	};
+
+	private Job proposalJob = new Job("Fecthcing proposals") {
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			List<String> contentProposals = GoogleContentHelper.getContentProposals(filterText);
+			input.clear();
+			input.putAll(GoogleSearchCommandHandler.directLinks);
+			for (String string : contentProposals) {
+				input.put(string, null);
+			}
+			Display.getDefault().syncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					if (!treeViewer.getTree().isDisposed()) {
+						treeViewer.refresh();
+					}
+				}
+			});
+			return Status.OK_STATUS;
+		}
+	};
 
 	protected IDialogSettings getDialogSettings() {
 		final IDialogSettings workbenchDialogSettings = Activator.getDefault().getDialogSettings();
@@ -206,9 +154,70 @@ public class GoogleSearchDialog extends PopupDialog {
 	protected String getId() {
 		return "eclipse.utility.ui.GoogleSearchDialog"; //$NON-NLS-1$
 	}
-	
+
 	private PatternFilter getPatternFilter() {
 		return new PatternFilter();
 	}
+
+	private ILabelProvider iLabelProvider = new ILabelProvider() {
+
+		public void removeListener(ILabelProviderListener listener) {
+
+		}
+
+		public boolean isLabelProperty(Object element, String property) {
+			return false;
+		}
+
+		public void dispose() {
+
+		}
+
+		public void addListener(ILabelProviderListener listener) {
+
+		}
+
+		@SuppressWarnings("rawtypes")
+		public String getText(Object element) {
+			if (element instanceof Entry) {
+				Entry entry = (Entry) element;
+				String tail = entry.getValue() != null ? "[" + entry.getValue() + "]" : "";
+				return entry.getKey() + tail;
+			}
+			return null;
+		}
+
+		public Image getImage(Object element) {
+			return null;
+		}
+	};
+
+	private ITreeContentProvider iTreeContentProvider = new ITreeContentProvider() {
+
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+
+		}
+
+		public void dispose() {
+
+		}
+
+		public boolean hasChildren(Object element) {
+			return false;
+		}
+
+		public Object getParent(Object element) {
+			return null;
+		}
+
+		public Object[] getElements(Object inputElement) {
+			return input.entrySet().toArray();
+		}
+
+		public Object[] getChildren(Object parentElement) {
+			return null;
+		}
+
+	};
 
 }

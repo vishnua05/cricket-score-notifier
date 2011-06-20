@@ -29,6 +29,7 @@ public class GoogleSearchCommandHandler extends AbstractHandler implements IHand
 		directLinks.put("Google Reader", null);
 		directLinks.put("Facebook", null);
 		directLinks.put("Cricket Score Notifier", null);
+		directLinks.put("Gmail", null);
 	}
 	
 	
