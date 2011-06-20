@@ -17,6 +17,10 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
@@ -28,10 +32,14 @@ public class OpenResourceLocationHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Object selectedObject = getSelectedObject();
 		IResource resource = null;
-		if (selectedObject instanceof IResource) {
-			resource = (IResource) selectedObject;
-		}  else if (selectedObject instanceof IAdaptable) {
-			resource = (IResource) ((IAdaptable) selectedObject).getAdapter(IResource.class);
+		Shell activeShell = Display.getDefault().getActiveShell();
+		Shell workbenchShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		if (activeShell != workbenchShell) {
+			if (selectedObject instanceof IResource) {
+				resource = (IResource) selectedObject;
+			} else if (selectedObject instanceof IAdaptable) {
+				resource = (IResource) ((IAdaptable) selectedObject).getAdapter(IResource.class);
+			}
 		}
 		URI locationURI = null;
 		if (resource != null) {
@@ -74,6 +82,18 @@ public class OpenResourceLocationHandler extends AbstractHandler {
 				locationURI = file.toURI();
 			} 
 		} 
+		
+		
+		if (locationURI == null) {
+			IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+            IEditorInput editorInput = editor.getEditorInput();
+            if (editorInput instanceof IURIEditorInput) {
+            	URI uri = ((IURIEditorInput) editorInput).getURI();
+            	File file = new File(uri).getParentFile();
+            	locationURI = file.toURI();
+            }
+		}
+		
 
 		if (locationURI != null) {
 			try {
