@@ -44,5 +44,31 @@
             sequence="M3+L">
       </key>
    </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="GoogleSearch.actionSet"
+            label="Google Search"
+            visible="true">
+         <action
+               class="googlesearch.actions.GoogleSearchAction"
+               definitionId="googlesearch.GoogleSearchCommand"
+               icon="icons/Google-icon.png"
+               id="googlesearch.GoogleSearchAction"
+               label="Google Search"
+               style="push"
+               toolbarPath="additions">
+         </action>
+         <action
+               class="googlesearch.actions.OpenResourceLocationAction"
+               definitionId="googlesearch.OpenResourceLocationCommand"
+               icon="icons/explorer.png"
+               id="googlesearch.OpenResourceLocationAction"
+               label="Open Resource Location"
+               style="push"
+               toolbarPath="additions">
+         </action>
+      </actionSet>
+   </extension>
 
 </plugin>
