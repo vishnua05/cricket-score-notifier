@@ -23,15 +23,12 @@
             visible="true">
          <action
                class="scorenotifierplugin.actions.ShowScoreCardAction"
+               icon="icons/cricket-icon.png"
                id="scorenotifierplugin.actions.ShowScoreCardAction"
                label="Show Score Card"
-               menubarPath="cricketMenu/additions"
-               style="push">
+               style="push"
+               toolbarPath="end">
          </action>
-         <menu
-               id="cricketMenu"
-               label="Cricket">
-         </menu>
       </actionSet>
    </extension>
    <extension
@@ -43,7 +40,7 @@
       <view
             category="ScoreNotifierPlugin.CricketCategory"
             class="scorenotifierplugin.ScoreCardView"
-            icon="icons/linux.png"
+            icon="icons/cricket-icon.png"
             id="scorenotifierplugin.ScoreCardView"
             name="Score Card"
             restorable="true">
