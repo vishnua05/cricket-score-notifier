@@ -20,12 +20,10 @@ public class OpenResourceLocationAction implements IWorkbenchWindowActionDelegat
 
 	}
 
-	@Override
 	public void dispose() {
 
 	}
 
-	@Override
 	public void init(IWorkbenchWindow window) {
 	}
 
