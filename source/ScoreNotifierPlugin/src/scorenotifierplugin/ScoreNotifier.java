@@ -61,7 +61,7 @@ public class ScoreNotifier {
 	}
 	
 	public static String getMatchURL(String displayName) {
-		return GOOGLE_QUERY_URL + displayName +" live cricket scorecard";
+		return GOOGLE_QUERY_URL + displayName +" live cricbuzz scorecard";
 	}
 
 	public void toggleNotifier(String matchURL) {
