@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <feature url="features/ScoreNotifierFeature_1.0.0.qualifier.jar" id="ScoreNotifierFeature" version="1.0.0.qualifier">
-      <category name="Cricket_Category"/>
+      <category name="Utility_Category"/>
    </feature>
-   <category-def name="Cricket_Category" label="Cricket"/>
+   <category-def name="Utility_Category" label="Eclipse Utilities"/>
 </site>
