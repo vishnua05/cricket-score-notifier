@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/ScoreNotifierFeature_1.0.0.201106222123.jar" id="ScoreNotifierFeature" version="1.0.0.201106222123">
+   <feature url="features/ScoreNotifierFeature_1.0.0.201106230004.jar" id="ScoreNotifierFeature" version="1.0.0.201106230004">
       <category name="Cricket_Cateogry"/>
    </feature>
    <category-def name="Cricket_Cateogry" label="Cricket"/>

@@ -34,6 +34,9 @@ public class MobileScoreParser implements IScoreParser {
 		score = score != null ? result != null ? score + result : score : result; 
 		if (score == null) {
 			score = scoreCardDetails.get(START_TIME);
+			if (score == null) {
+				score = "No info available";
+			}
 		} 
 	}
 
