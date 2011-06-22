@@ -1,5 +1,8 @@
 package googlesearch.actions;
 
+import googlesearch.Activator;
+import googlesearch.ui.GoogleSearchDialog;
+
 import java.net.URL;
 import java.util.HashMap;
 
@@ -9,12 +12,12 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
-
-import googlesearch.Activator;
-import googlesearch.ui.GoogleSearchDialog;
 
 public class GoogleSearchCommandHandler extends AbstractHandler implements IHandler {
 
@@ -40,6 +43,10 @@ public class GoogleSearchCommandHandler extends AbstractHandler implements IHand
 		String queryText = null;
 		if (selection instanceof ITextSelection) {
 			queryText = ((ITextSelection) selection).getText();
+		}
+		Control control = Display.getDefault().getFocusControl();
+		if (control instanceof Text) {
+             queryText = ((Text) control).getSelectionText();
 		}
 		GoogleSearchDialog googleSearchDialog = new GoogleSearchDialog(queryText);
 		googleSearchDialog.open();
