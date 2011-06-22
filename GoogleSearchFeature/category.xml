@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/ScoreNotifierFeature_1.0.0.qualifier.jar" id="ScoreNotifierFeature" version="1.0.0.qualifier">
+      <category name="Cricket_Category"/>
+   </feature>
+   <category-def name="Cricket_Category" label="Cricket"/>
+</site>
