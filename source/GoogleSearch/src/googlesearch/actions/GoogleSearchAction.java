@@ -20,12 +20,10 @@ public class GoogleSearchAction implements IWorkbenchWindowActionDelegate {
 
 	}
 
-	@Override
 	public void dispose() {
 
 	}
 
-	@Override
 	public void init(IWorkbenchWindow window) {
 	}
 
