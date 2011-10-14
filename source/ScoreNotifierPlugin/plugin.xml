@@ -23,7 +23,7 @@
             visible="true">
          <action
                class="scorenotifierplugin.actions.ShowScoreCardAction"
-               icon="icons/cricket-icon.png"
+               icon="icons/cricket-icon.gif"
                id="scorenotifierplugin.actions.ShowScoreCardAction"
                label="Show Score Card"
                style="push"
@@ -40,7 +40,7 @@
       <view
             category="ScoreNotifierPlugin.CricketCategory"
             class="scorenotifierplugin.ScoreCardView"
-            icon="icons/cricket-icon.png"
+            icon="icons/cricket-icon.gif"
             id="scorenotifierplugin.ScoreCardView"
             name="Score Card"
             restorable="true">
