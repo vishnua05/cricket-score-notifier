@@ -29,7 +29,11 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 
 public class OpenResourceLocationHandler extends AbstractHandler {
@@ -102,7 +106,19 @@ public class OpenResourceLocationHandler extends AbstractHandler {
 				}
 				prompt = activeShell != workbenchShell;
 				if (fileLocation == null) {
-					fileLocation = ResourcesPlugin.getWorkspace().getRoot().getLocationURI().getPath();
+					if (fileLocation == null) {
+						IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
+						if (workbenchPart instanceof IEditorPart) {
+							IEditorInput editorInput = ((IEditorPart) workbenchPart).getEditorInput();
+							if (editorInput instanceof IURIEditorInput) {
+								URI uri = ((IURIEditorInput) editorInput).getURI();
+								fileLocation = new File(uri).getParentFile().getPath();
+							}
+						}
+					}
+					if (fileLocation == null) {
+						fileLocation = ResourcesPlugin.getWorkspace().getRoot().getLocationURI().getPath();
+					}
 				}
 				
 				file = new File(fileLocation);
