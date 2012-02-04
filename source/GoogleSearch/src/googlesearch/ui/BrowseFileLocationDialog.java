@@ -5,11 +5,15 @@ import googlesearch.Activator;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
+import org.eclipse.jface.fieldassist.AutoCompleteField;
+import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
@@ -49,6 +53,8 @@ public class BrowseFileLocationDialog extends PopupDialog {
 	private Text filterText;
 	private TreeViewer treeViewer;
 	private Text pathText;
+	private AutoCompleteField pathAutoCompleteField;
+	private File initFile;
 	private final static String PREF_LOCATIONS = "googlesearch.ui.BrowseFileLocationDialo.locations";
     private final static String DELIMITER = ":-:";
 	
@@ -65,9 +71,11 @@ public class BrowseFileLocationDialog extends PopupDialog {
 				}
 			}
 		}
-        files.add(new File(initialText));
 		
 		this.initialText = initialText;
+		initFile = new File(initialText);
+		files.add(initFile);
+
 	}
 
 	protected Control createDialogArea(Composite parent) {
@@ -87,7 +95,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		GridDataFactory.swtDefaults().applyTo(filterLabel);
 		
 		filterText = new Text(parent, SWT.BORDER);
-		filterText.setText(new File(initialText).getName());
+		filterText.setText(initFile.getName());
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(filterText);
 		
 		treeViewer = new TreeViewer(parent, styleBits);
@@ -103,6 +111,8 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		GridDataFactory.swtDefaults().applyTo(label);
 		
 		pathText = new Text(parent, SWT.BORDER);
+		String[] initialProposals = initFile.isDirectory() ? initFile.list(): new String[0];
+		pathAutoCompleteField = new AutoCompleteField(pathText, new TextContentAdapter(), initialProposals);
 		pathText.setText(initialText);
 		GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(pathText);
 		
@@ -114,6 +124,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 				filterText.setFocus();
 			}
 		});
+		
 		
 	}
 
@@ -154,6 +165,33 @@ public class BrowseFileLocationDialog extends PopupDialog {
 				filterText.selectAll();
 			}
 		});
+		
+		pathText.addFocusListener(new FocusAdapter() {
+			public void focusGained(FocusEvent e) {
+				pathText.setSelection(pathText.getText().length());
+			}
+		});
+		
+		pathText.addModifyListener(new ModifyListener() {
+			
+			public void modifyText(ModifyEvent e) {
+				String text = pathText.getText();
+				File file = new File(text);
+				File[] children = null;
+				if (file.isDirectory()) {
+					children = file.listFiles();
+				} else if (file.getParentFile() != null) {
+					children = file.getParentFile().listFiles();
+				}
+				if (children != null) {
+					List<String> proposals = new ArrayList<String>();
+					for (File child : children) {
+						proposals.add(child.getAbsolutePath());
+					}
+					pathAutoCompleteField.setProposals(proposals.toArray(new String[0]));
+				}
+			}
+		});
 	}
 	
 	private  ViewerFilter viewerFilter = new ViewerFilter() {
@@ -173,7 +211,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 	};
 
 	KeyAdapter enterListener = new KeyAdapter() {
-		public void keyReleased(KeyEvent e) {
+		public void keyPressed(KeyEvent e) {
 			if (e.character == '\r') {
 				handleEnter();
 			}
