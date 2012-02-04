@@ -1,10 +1,8 @@
 package googlesearch.actions;
 
-import googlesearch.Activator;
+import googlesearch.ui.BrowseFileLocationDialog;
 
-import java.awt.Desktop;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -13,8 +11,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -39,7 +35,6 @@ import org.eclipse.ui.PlatformUI;
 public class OpenResourceLocationHandler extends AbstractHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		boolean prompt = false;
 		Object selectedObject = getSelectedObject();
 		URI locationURI = null;
 		IResource resource = null;
@@ -57,7 +52,7 @@ public class OpenResourceLocationHandler extends AbstractHandler {
 				resource = resource.getParent();
 			}
 			locationURI = resource.getLocationURI();
-		} else if (locationURI == null) {
+		} else {
 			File file = null;
 			if (selectedObject instanceof File) {
 				file = (File) selectedObject;
@@ -104,7 +99,7 @@ public class OpenResourceLocationHandler extends AbstractHandler {
 						}
 					}
 				}
-				prompt = activeShell != workbenchShell;
+				
 				if (fileLocation == null) {
 					if (fileLocation == null) {
 						IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
@@ -116,43 +111,27 @@ public class OpenResourceLocationHandler extends AbstractHandler {
 							}
 						}
 					}
-					if (fileLocation == null) {
-						fileLocation = ResourcesPlugin.getWorkspace().getRoot().getLocationURI().getPath();
-					}
 				}
 				
-				file = new File(fileLocation);
+				if (fileLocation != null) {
+					file = new File(fileLocation);
+				}
 			}
 			if (file != null) {
 				if (file.exists()) {
 					if (file.isFile()) {
 						file = file.getParentFile();
 					}
-				} else {
-					prompt = true;
+					locationURI = file.toURI();
 				}
-				locationURI = file.toURI();
 			}
 		}
 
-		if (prompt) {
-			String message = "Enter the location you wish to open";
-			InputDialog inputDialog = new InputDialog(Display.getDefault().getActiveShell(), "Open Location", message,
-					locationURI != null ? locationURI.getPath() : null, null);
-			if (inputDialog.open() == IDialogConstants.OK_ID) {
-				locationURI = new File(inputDialog.getValue()).toURI();
-			} else {
-				locationURI = null;
-			}
+		if (locationURI == null) {
+			locationURI = ResourcesPlugin.getWorkspace().getRoot().getLocationURI();
 		}
 
-		if (locationURI != null) {
-			try {
-				Desktop.getDesktop().browse(locationURI);
-			} catch (IOException e) {
-				Activator.getDefault().logAndShowException(e);
-			}
-		}
+		new BrowseFileLocationDialog(new File(locationURI).getAbsolutePath()).open();
 		return null;
 	}
 

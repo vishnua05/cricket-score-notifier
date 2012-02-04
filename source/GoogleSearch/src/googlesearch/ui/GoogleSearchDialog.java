@@ -34,7 +34,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.FilteredTree;
@@ -47,7 +46,7 @@ public class GoogleSearchDialog extends PopupDialog {
 	private TreeViewer treeViewer;
 
 	public GoogleSearchDialog(String initialText) {
-		super(new Shell(), SWT.RESIZE, true, true, true, true, true, "Google Search", "Search in google");
+		super(Display.getDefault().getActiveShell(), SWT.RESIZE, true, true, true, true, true, "Google Search", "Search in google");
 		input.putAll(GoogleSearchCommandHandler.directLinks);
 		this.filterText = initialText;
 	}
@@ -60,7 +59,6 @@ public class GoogleSearchDialog extends PopupDialog {
 	}
 
 	protected void createFilteredTreeViewer(Composite parent) {
-		GridDataFactory.fillDefaults().applyTo(parent);
 		GridDataFactory.fillDefaults().grab(true, true).hint(400, 200).applyTo(parent);
 		int styleBits = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
 		FilteredTree filteredTree = new FilteredTree(parent, styleBits, getPatternFilter(), true);
