@@ -41,7 +41,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.dialogs.SearchPattern;
 
 public class BrowseFileLocationDialog extends PopupDialog {
@@ -126,7 +125,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		});
 		
 		filterText.addModifyListener(new ModifyListener() {
-			@Override
+			
 			public void modifyText(ModifyEvent e) {
 				treeViewer.refresh();
 			}
@@ -134,7 +133,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			
-			@Override
+			
 			public void selectionChanged(SelectionChangedEvent event) {
 				ISelection selection = event.getSelection(); {
 					if (selection instanceof IStructuredSelection) {
@@ -158,7 +157,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 	}
 	
 	private  ViewerFilter viewerFilter = new ViewerFilter() {
-		@Override
+		
 		public boolean select(Viewer viewer, Object parentElement, Object element) {
 			SearchPattern searchPattern = new SearchPattern();
 			String patternString = filterText.getText();
@@ -195,25 +194,12 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		return "eclipse.utility.ui.GoogleSearchDialog"; //$NON-NLS-1$
 	}
 
-	private PatternFilter getPatternFilter() {
-		return new PatternFilter() {
-			
-			@Override
-			public void setPattern(String patternString) {
-				if (!patternString.startsWith("*")) {
-					patternString = "*" + patternString;
-				}
-				super.setPattern(patternString);
-			}
-		};
-	}
-
 	private class CustomStyleLabelProvider extends DelegatingStyledCellLabelProvider implements ILabelProvider {
 		public CustomStyleLabelProvider(IStyledLabelProvider labelProvider) {
 			super(labelProvider);
 		}
 
-		@Override
+		
 		public String getText(Object element) {
 			if (element instanceof File) {
 				return ((File) element).getAbsolutePath();
@@ -224,34 +210,25 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		
 	}
 	
-	private class LabelProvider implements IStyledLabelProvider, ILabelProvider {
+	private class LabelProvider implements IStyledLabelProvider{
 
-		@Override
 		public void addListener(ILabelProviderListener listener) {
 			
 		}
 
-		@Override
 		public void dispose() {
 			
 		}
 
-		@Override
 		public boolean isLabelProperty(Object element, String property) {
 			return false;
 		}
 
-		@Override
 		public void removeListener(ILabelProviderListener listener) {
 			
 		}
 
-		@Override
-		public String getText(Object element) {
-			return getStyledText(element).toString();
-		}
-
-		@Override
+		
 		public StyledString getStyledText(Object element) {
 			if (element instanceof File) {
 				File file = (File) element;
@@ -265,7 +242,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 			return null;
 		}
 
-		@Override
+		
 		public Image getImage(Object element) {
 			return null;
 		}
