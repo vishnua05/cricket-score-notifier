@@ -100,19 +100,6 @@ public class OpenResourceLocationHandler extends AbstractHandler {
 					}
 				}
 				
-				if (fileLocation == null) {
-					if (fileLocation == null) {
-						IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
-						if (workbenchPart instanceof IEditorPart) {
-							IEditorInput editorInput = ((IEditorPart) workbenchPart).getEditorInput();
-							if (editorInput instanceof IURIEditorInput) {
-								URI uri = ((IURIEditorInput) editorInput).getURI();
-								fileLocation = new File(uri).getParentFile().getPath();
-							}
-						}
-					}
-				}
-				
 				if (fileLocation != null) {
 					file = new File(fileLocation);
 				}
@@ -129,6 +116,14 @@ public class OpenResourceLocationHandler extends AbstractHandler {
 
 		if (locationURI == null) {
 			locationURI = ResourcesPlugin.getWorkspace().getRoot().getLocationURI();
+			IWorkbenchPart workbenchPart = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
+			if (workbenchPart instanceof IEditorPart) {
+				IEditorInput editorInput = ((IEditorPart) workbenchPart).getEditorInput();
+				if (editorInput instanceof IURIEditorInput) {
+					locationURI = ((IURIEditorInput) editorInput).getURI();
+					locationURI =  new File(locationURI).getParentFile().toURI();
+				}
+			}
 		}
 
 		new BrowseFileLocationDialog(new File(locationURI).getAbsolutePath()).open();
