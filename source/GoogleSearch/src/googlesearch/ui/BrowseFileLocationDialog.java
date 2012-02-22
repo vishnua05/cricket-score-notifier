@@ -399,11 +399,13 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		}
 		String locationPref = "";
 		for (File file : files) {
-			String path = file.getAbsolutePath();
-			if (!locationPref.isEmpty()) {
-				locationPref = locationPref + DELIMITER + path ;
-			} else {
-				locationPref = path;
+			if (file.isDirectory()) {
+				String path = file.getAbsolutePath();
+				if (!locationPref.isEmpty()) {
+					locationPref = locationPref + DELIMITER + path ;
+				} else {
+					locationPref = path;
+				}
 			}
 		}
 		Activator.getDefault().getDialogSettings().put(PREF_LOCATIONS, locationPref);
