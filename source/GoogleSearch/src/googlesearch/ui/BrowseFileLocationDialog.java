@@ -32,6 +32,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -229,28 +230,31 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		filterText.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_DOWN) {
-					Tree tree = treeViewer.getTree();
-					tree.select(tree.getItem(0));
-					tree.setFocus();
+					selectTree();
 				} else if (e.keyCode == SWT.ARROW_UP) {
 					pathText.setFocus();
 					pathText.setSelection(pathText.getText().length());
 				}
 			}
+			
 		});
 		
 		pathText.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_UP) {
-					Tree tree = treeViewer.getTree();
-					tree.select(tree.getItem(0));
-					tree.setFocus();
+					selectTree();
 				} else if (e.keyCode == SWT.ARROW_DOWN) {
 					filterText.setFocus();
 					filterText.setSelection(filterText.getText().length());
 				}
 			}
 		});
+	}
+	
+	public void selectTree() {
+		Tree tree = treeViewer.getTree();
+		treeViewer.setSelection(new StructuredSelection(tree.getItem(0).getData()));
+		tree.setFocus();
 	}
 	
 	private  ViewerFilter viewerFilter = new ViewerFilter() {
