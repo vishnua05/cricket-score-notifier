@@ -1,11 +1,16 @@
 package googlesearch.ui;
 
 import googlesearch.Activator;
+import googlesearch.model.BookMarksProviderFactory;
+import googlesearch.model.IBookMarksProvider;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,10 +50,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.dialogs.SearchPattern;
 
 public class BrowseFileLocationDialog extends PopupDialog {
-	private Set<File> files = new HashSet<File>();
+	private Set<File> files = Collections.synchronizedSet(new HashSet<File>());
 	private String initialText;
 	private Text filterText;
 	private TreeViewer treeViewer;
@@ -61,21 +67,46 @@ public class BrowseFileLocationDialog extends PopupDialog {
 	
 	public BrowseFileLocationDialog(String initialText) {
 		super(Display.getDefault().getActiveShell(), SWT.RESIZE, true, true, true, true, true, "Open Location", "Select a file path and press 'Enter' to open");
+		
 		String locationPref = Activator.getDefault().getDialogSettings().get(PREF_LOCATIONS);
 		if (locationPref != null) {
 			String[] locations = locationPref.split(DELIMITER);
-			for (String location : locations) {
-				File file = new File(location);
-				if (file.exists()) {
-					files.add(file);
-				}
-			}
+			updateFiles(Arrays.asList(locations));
 		}
 		
 		this.initialText = initialText;
 		initFile = new File(initialText);
 		files.add(initFile);
+			
+		Runnable bookMarksRunnable = new Runnable() {
+			@Override
+			public void run() {
+				IBookMarksProvider bookMarksProvider = BookMarksProviderFactory.getInstance().getBookMarksProvider();
+				Set<String> locations = new HashSet<String>();
+				locations.addAll(bookMarksProvider.getFavorites());
+				locations.addAll(bookMarksProvider.getRecentDocuments());
+				updateFiles(locations);
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						if (!treeViewer.getTree().isDisposed()) {
+							treeViewer.refresh();
+						}
+					}
+				});
 
+			}
+		};
+		new Thread(bookMarksRunnable).start();
+	}
+
+	public void updateFiles(Collection<String> locations) {
+		for (String location : locations) {
+			File file = new File(location);
+			if (file.exists()) {
+				files.add(file);
+			}
+		}
 	}
 
 	protected Control createDialogArea(Composite parent) {
@@ -189,6 +220,34 @@ public class BrowseFileLocationDialog extends PopupDialog {
 						proposals.add(child.getAbsolutePath());
 					}
 					pathAutoCompleteField.setProposals(proposals.toArray(new String[0]));
+				}
+			}
+		});
+		
+		// key listeners
+		
+		filterText.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode == SWT.ARROW_DOWN) {
+					Tree tree = treeViewer.getTree();
+					tree.select(tree.getItem(0));
+					tree.setFocus();
+				} else if (e.keyCode == SWT.ARROW_UP) {
+					pathText.setFocus();
+					pathText.setSelection(pathText.getText().length());
+				}
+			}
+		});
+		
+		pathText.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode == SWT.ARROW_UP) {
+					Tree tree = treeViewer.getTree();
+					tree.select(tree.getItem(0));
+					tree.setFocus();
+				} else if (e.keyCode == SWT.ARROW_DOWN) {
+					filterText.setFocus();
+					filterText.setSelection(filterText.getText().length());
 				}
 			}
 		});
