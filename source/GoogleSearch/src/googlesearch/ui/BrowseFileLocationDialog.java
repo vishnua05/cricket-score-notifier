@@ -120,7 +120,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 	protected void createFilteredTreeViewer(Composite parent) {
 		GridDataFactory.fillDefaults().grab(true, true).hint(400, 200).applyTo(parent);
 		GridLayoutFactory.fillDefaults().numColumns(2).applyTo(parent);
-		int styleBits = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER;
+		int styleBits = SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.MULTI;
 		
 		Label filterLabel = new Label(parent, SWT.NONE);
 		filterLabel.setText("Filter: ");
@@ -134,9 +134,10 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		GridDataFactory.fillDefaults().grab(true, true).span(2, 1).applyTo(treeViewer.getTree());
 		treeViewer.setContentProvider(iTreeContentProvider);
 		treeViewer.setLabelProvider(new CustomStyleLabelProvider(new LabelProvider()));
-		treeViewer.setSorter(new ViewerSorter());
+		treeViewer.setSorter(new CustomSorter());
 		treeViewer.setInput(files);
 		treeViewer.setFilters(new ViewerFilter[] {viewerFilter});
+		
 		
 		Label label = new Label(parent, SWT.NONE);
 		label.setText("Path: ");
@@ -253,8 +254,10 @@ public class BrowseFileLocationDialog extends PopupDialog {
 	
 	public void selectTree() {
 		Tree tree = treeViewer.getTree();
-		treeViewer.setSelection(new StructuredSelection(tree.getItem(0).getData()));
-		tree.setFocus();
+		if (tree.getItemCount() > 0) {
+			treeViewer.setSelection(new StructuredSelection(tree.getItem(0).getData()));
+			tree.setFocus();
+		}
 	}
 	
 	private  ViewerFilter viewerFilter = new ViewerFilter() {
@@ -295,6 +298,20 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		return "eclipse.utility.ui.GoogleSearchDialog"; //$NON-NLS-1$
 	}
 
+
+	private class CustomSorter extends ViewerSorter {
+		
+		public int category(Object element) {
+			if (element instanceof File) {
+				if (((File) element).isFile()) {
+					return 1;
+				}
+			}
+			return super.category(element);
+		}
+		
+	}
+	
 	private class CustomStyleLabelProvider extends DelegatingStyledCellLabelProvider implements ILabelProvider {
 		public CustomStyleLabelProvider(IStyledLabelProvider labelProvider) {
 			super(labelProvider);
@@ -302,12 +319,8 @@ public class BrowseFileLocationDialog extends PopupDialog {
 
 		
 		public String getText(Object element) {
-			if (element instanceof File) {
-				return ((File) element).getAbsolutePath();
-			}
 			return getStyledText(element).toString();
 		}
-		
 		
 	}
 	
