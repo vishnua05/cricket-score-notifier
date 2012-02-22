@@ -79,7 +79,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		files.add(initFile);
 			
 		Runnable bookMarksRunnable = new Runnable() {
-			@Override
+			
 			public void run() {
 				IBookMarksProvider bookMarksProvider = BookMarksProviderFactory.getInstance().getBookMarksProvider();
 				Set<String> locations = new HashSet<String>();
@@ -87,7 +87,7 @@ public class BrowseFileLocationDialog extends PopupDialog {
 				locations.addAll(bookMarksProvider.getRecentDocuments());
 				updateFiles(locations);
 				Display.getDefault().asyncExec(new Runnable() {
-					@Override
+					
 					public void run() {
 						if (!treeViewer.getTree().isDisposed()) {
 							treeViewer.refresh();
