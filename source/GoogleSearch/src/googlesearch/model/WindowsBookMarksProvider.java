@@ -1,5 +1,6 @@
 package googlesearch.model;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -149,9 +150,9 @@ class LnkParser {
 
 	private void parse(File f) throws IOException {
 		// read the entire file into a byte buffer
-		FileInputStream fin = new FileInputStream(f);
+		BufferedInputStream fin = new BufferedInputStream(new FileInputStream(f));
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		byte[] buff = new byte[256];
+		byte[] buff = new byte[fin.available()];
 		while (true) {
 			int n = fin.read(buff);
 			if (n == -1) {
