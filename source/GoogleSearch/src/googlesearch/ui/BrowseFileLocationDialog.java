@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,13 +54,14 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.dialogs.SearchPattern;
 
 public class BrowseFileLocationDialog extends PopupDialog {
-	private Set<File> files = Collections.synchronizedSet(new HashSet<File>());
+	private Set<File> files = new HashSet<File>();
 	private String initialText;
 	private Text filterText;
 	private TreeViewer treeViewer;
 	private Text pathText;
 	private AutoCompleteField pathAutoCompleteField;
 	private File initFile;
+	private Thread thread;
 	private final static String PREF_LOCATIONS = "googlesearch.ui.BrowseFileLocationDialo.locations";
     private final static String DELIMITER = ":-:";
 	
@@ -98,14 +98,16 @@ public class BrowseFileLocationDialog extends PopupDialog {
 
 			}
 		};
-		new Thread(bookMarksRunnable).start();
+		thread = new Thread(bookMarksRunnable);
+		thread.start();
 	}
 
 	public void updateFiles(Collection<String> locations) {
 		for (String location : locations) {
 			File file = new File(location);
-			if (file.exists()) {
-				files.add(file);
+			files.add(file);
+			if (enterPressed) {
+				break;
 			}
 		}
 	}
@@ -391,7 +393,10 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		}
 	};
 
+
+	private boolean enterPressed;
 	private void handleEnter() {
+		enterPressed = true;
 		String selectedPath = pathText.getText();
 		File selectedFile = new File(selectedPath);
 		if (selectedFile.exists()) {
