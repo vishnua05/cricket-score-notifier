@@ -14,6 +14,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.fieldassist.AutoCompleteField;
@@ -69,12 +73,6 @@ public class BrowseFileLocationDialog extends PopupDialog {
 	public BrowseFileLocationDialog(String initialText) {
 		super(Display.getDefault().getActiveShell(), SWT.RESIZE, true, true, true, true, true, "Open Location", "Select a file path and press 'Enter' to open");
 		
-		String locationPref = Activator.getDefault().getDialogSettings().get(PREF_LOCATIONS);
-		if (locationPref != null) {
-			String[] locations = locationPref.split(DELIMITER);
-			updateFiles(Arrays.asList(locations));
-		}
-		
 		this.initialText = initialText;
 		initFile = new File(initialText);
 		files.add(initFile);
@@ -82,21 +80,23 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		Runnable bookMarksRunnable = new Runnable() {
 			
 			public void run() {
+				String locationPref = Activator.getDefault().getDialogSettings().get(PREF_LOCATIONS);
+				if (locationPref != null) {
+					String[] locations = locationPref.split(DELIMITER);
+					updateFiles(Arrays.asList(locations));
+				}
+				
+				// update local pref values
+				refreshViewer();
+				//update from recent docs
 				IBookMarksProvider bookMarksProvider = BookMarksProviderFactory.getInstance().getBookMarksProvider();
 				Set<String> locations = new HashSet<String>();
 				locations.addAll(bookMarksProvider.getFavorites());
 				locations.addAll(bookMarksProvider.getRecentDocuments());
 				updateFiles(locations);
-				Display.getDefault().asyncExec(new Runnable() {
-					
-					public void run() {
-						if (!treeViewer.getTree().isDisposed()) {
-							treeViewer.refresh();
-						}
-					}
-				});
-
+				refreshViewer();
 			}
+
 		};
 		thread = new Thread(bookMarksRunnable);
 		thread.start();
@@ -105,9 +105,11 @@ public class BrowseFileLocationDialog extends PopupDialog {
 	public void updateFiles(Collection<String> locations) {
 		for (String location : locations) {
 			File file = new File(location);
-			files.add(file);
-			if (enterPressed) {
-				break;
+			if (file.exists()) {
+				files.add(file);
+				if (enterPressed) {
+					break;
+				}
 			}
 		}
 	}
@@ -173,8 +175,9 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		filterText.addModifyListener(new ModifyListener() {
 			
 			public void modifyText(ModifyEvent e) {
-				treeViewer.refresh();
+				refreshViewer();
 			}
+			
 		});
 		
 		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -326,7 +329,27 @@ public class BrowseFileLocationDialog extends PopupDialog {
 		
 	}
 	
-	private class LabelProvider implements IStyledLabelProvider{
+	private Job refreshJob = new Job("Refresh") {
+		
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				public void run() {
+					if (!treeViewer.getTree().isDisposed()) {
+						treeViewer.refresh();
+					}
+				}
+			});
+			return Status.OK_STATUS;
+		}
+	};
+	
+	public void refreshViewer() {
+		refreshJob.schedule(200);
+	}
+	
+	private class LabelProvider implements IStyledLabelProvider, ILabelProvider{
 
 		public void addListener(ILabelProviderListener listener) {
 			
@@ -354,6 +377,16 @@ public class BrowseFileLocationDialog extends PopupDialog {
 				styledString.append(start + "-");
 				styledString.append(end,  StyledString.QUALIFIER_STYLER);
 				return styledString;
+			}
+			return null;
+		}
+		
+		public String getText(Object element) {
+			if (element instanceof File) {
+				File file = (File) element;
+				String start = file.getName();
+				String end = file.getAbsolutePath();
+				return start + "-" + end;
 			}
 			return null;
 		}
