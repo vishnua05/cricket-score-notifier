@@ -13,6 +13,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -22,6 +24,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -85,17 +88,14 @@ public class NotifierDialog {
 			}
 		});
 
-		final Composite container = new Composite(thisShell, SWT.NONE);
-
-		GridLayout containerLayout = new GridLayout(2, false);
-		containerLayout.marginLeft = 5;
+		final Composite container = new Composite(thisShell, SWT.BORDER);
+		GridLayout containerLayout = new GridLayout(3, false);
 		containerLayout.marginTop = 0;
-		containerLayout.marginRight = 5;
-		containerLayout.marginBottom = 5;
 		containerLayout.verticalSpacing = 0;
 
 		container.setLayout(containerLayout);
-		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		GridData layoutData = new GridData(SWT.FILL, SWT.FILL, true, false);
+		container.setLayoutData(layoutData);
 		thisShell.addListener(SWT.Resize, new Listener() {
 
 			public void handleEvent(Event e) {
@@ -133,15 +133,9 @@ public class NotifierDialog {
 			}
 		});
 
-		Composite header = new Composite(container, SWT.NONE);
-		GridData headerLayoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
-		headerLayoutData.horizontalSpan = 2;
-		header.setLayoutData(headerLayoutData);
-		GridLayout headerLayout = new GridLayout(2, false);
-		headerLayout.marginWidth = 0;
-		header.setLayout(headerLayout);
-
-		Label scoreLabel = new Label(header, SWT.NONE);
+		Rectangle clientArea = Display.getDefault().getClientArea();
+		int shellWidth = clientArea.width / 5;
+		Label scoreLabel = new Label(container, SWT.NONE);
 		scoreLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		scoreLabel.setText(scoreNode.getScore());
 		scoreLabel.setForeground(ColorMapper.getFontColor(scoreEvent));
@@ -151,7 +145,7 @@ public class NotifierDialog {
 		sfd.setStyle(SWT.BOLD | SWT.ITALIC);
 		scoreLabel.setFont(FontCache.getFont(sfd));
 
-		Hyperlink liveLink = new Hyperlink(header, SWT.NONE);
+		Hyperlink liveLink = new Hyperlink(container, SWT.NONE);
 		liveLink.setUnderlined(true);
 		liveLink.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		liveLink.setText("Live");
@@ -168,7 +162,19 @@ public class NotifierDialog {
 		// fd.setStyle(SWT.BOLD);
 		fd.height = 10;
 		liveLink.setFont(FontCache.getFont(fd));
-
+		
+		Button closeButton = new Button(container, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.RIGHT, SWT.CENTER).applyTo(closeButton);
+		closeButton.setText("X");
+		closeButton.setForeground(container.getForeground());
+		closeButton.setBackground(container.getBackground());
+		closeButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				disposeShell(thisShell);
+			}
+		});
+		
 		if (scoreNode.getBatsMenStats() != null && !scoreNode.isCommentaryNode()) {
 			String batsMenStats = scoreNode.getBatsMenStats();
 			StringTokenizer stringTokenizer = new StringTokenizer(batsMenStats, IScoreParser.BATSMEN_DELIMITER);
@@ -182,14 +188,14 @@ public class NotifierDialog {
 
 		if (scoreNode.getDecoration() != "-") {
 			String decoration = scoreNode.getDecoration();
-			Label messageLabel = new Label(container, SWT.WRAP);
+			Label messageLabel = new Label(container, SWT.NONE);
 			Font tf = messageLabel.getFont();
 			FontData tfd = tf.getFontData()[0];
 			tfd.setStyle(SWT.BOLD);
-			tfd.height = 11;
+			tfd.height = 10;
 			messageLabel.setFont(FontCache.getFont(tfd));
-			GridData gd = new GridData(GridData.FILL_BOTH);
-			gd.horizontalSpan = 2;
+			GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+			gd.horizontalSpan = 3;
 			messageLabel.setLayoutData(gd);
 			messageLabel.setForeground(ColorMapper.getFontColor(scoreEvent));
 			if (preferences.notifyEveryOver() && !preferences.notifyEveryBall() && !preferences.notifyEveryRun() && scoreNode.isEndOfOver()) {
@@ -201,17 +207,28 @@ public class NotifierDialog {
 			messageLabel.addMouseListener(getMouseListener(thisShell));
 		}
 
-		if (scoreNode.getCommentary() != null) {
+		String commentary = scoreNode.getCommentary();
+		if (commentary != null) {
 			Label commentaryLabel = new Label(container, SWT.WRAP);
-			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(200, SWT.DEFAULT).grab(true, false).span(2, 1).applyTo(commentaryLabel);
-			commentaryLabel.setText(scoreNode.getCommentary());
-			commentaryLabel.setForeground(ColorCache.getColor(139, 69, 0));
 			Font cf = commentaryLabel.getFont();
 			FontData cfd = cf.getFontData()[0];
 			cfd.height = 9;
 			cfd.setStyle(SWT.ITALIC);
-			commentaryLabel.setFont(FontCache.getFont(cfd));
+			Font font = FontCache.getFont(cfd);
+			commentaryLabel.setFont(font);
+			
+			GC gc = new GC(thisShell);
+			gc.setFont(font);
+			Point stringExtent = gc.stringExtent(commentary);
+			int y_hint = stringExtent.x * stringExtent.y / (shellWidth);
+			y_hint = (y_hint/stringExtent.y  + 1)*stringExtent.y;
+			y_hint = Math.min(y_hint, 150);
+			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).hint(SWT.DEFAULT, y_hint).span(3, 1).applyTo(commentaryLabel);
+			commentaryLabel.setText(commentary);
+			commentaryLabel.setForeground(ColorCache.getColor(139, 69, 0));
 			commentaryLabel.addMouseListener(getMouseListener(thisShell));
+			commentaryLabel.setToolTipText(commentary);
+			gc.dispose();
 		}
 		
 		if (scoreNode.getBowlerStats() != null && !scoreNode.isCommentaryNode()) {
@@ -219,24 +236,22 @@ public class NotifierDialog {
 		}
 
 		if (overStats != null) {
-			Label overStatsLabel = new Label(container, SWT.WRAP);
-			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).hint(200, SWT.DEFAULT).grab(true, false).span(2, 1).applyTo(overStatsLabel);
+			Label overStatsLabel = new Label(container, SWT.NONE);
+			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(3, 1).applyTo(overStatsLabel);
 			overStatsLabel.setText(overStats);
 			Font cf = overStatsLabel.getFont();
 			FontData cfd = cf.getFontData()[0];
-			cfd.height = 10;
+			cfd.height = 11;
 			overStatsLabel.setFont(FontCache.getFont(cfd));
 			overStatsLabel.addMouseListener(getMouseListener(thisShell));
 		}
 
-		Rectangle clientArea = Display.getDefault().getClientArea();
 		boolean invertNotificationLocation = preferences.isInvertNotificationLocation();
 
-		int minWidth = clientArea.width / 5;
 		int minHeight = container.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
-		thisShell.setSize(minWidth, minHeight);
+		thisShell.setSize(shellWidth, minHeight);
 
-		int startX = toggle ? 0 : clientArea.width - (minWidth + 2);
+		int startX = toggle ? 0 : clientArea.width - (shellWidth + 2);
 		int height_offset = minHeight + 2 + preferences.getNotifierOffset();
 		int startY = invertNotificationLocation ? preferences.getNotifierOffset() : clientArea.height - height_offset;
 		// move other shells up
@@ -254,7 +269,6 @@ public class NotifierDialog {
 		}
 
 		container.addMouseListener(getMouseListener(thisShell));
-		header.addMouseListener(getMouseListener(thisShell));
 		scoreLabel.addMouseListener(getMouseListener(thisShell));
 		DISPLAY_TIME = preferences.getNotifierDispalayTime();
 		fadeIn(thisShell);
@@ -299,8 +313,8 @@ public class NotifierDialog {
 			tlfd.setStyle(SWT.NORMAL);
 		}
 		liveLink.setFont(FontCache.getFont(tlfd));
-		GridData gd = new GridData(GridData.FILL_BOTH);
-		gd.horizontalSpan = 2;
+		GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+		gd.horizontalSpan = 3;
 		liveLink.setLayoutData(gd);
 		liveLink.setText(labelText);
 		liveLink.addHyperlinkListener(new HyperlinkAdapter() {
