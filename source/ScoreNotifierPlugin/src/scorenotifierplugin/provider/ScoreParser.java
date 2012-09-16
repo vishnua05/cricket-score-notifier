@@ -42,7 +42,7 @@ public class ScoreParser implements IScoreParser {
 	}
 
 	public String getCommentary() {
-		return "This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.This is test notfication. This is test notfication.";
+		return "This is commentary for test notification.";
 	}
 
 	public String getBowlerStats() {
