@@ -244,13 +244,8 @@ public class ScoreNotifier {
 	}
 
 	public void refreshLiveMatches() {
-		Thread refreshThread = new Thread(new Runnable() {
-			public void run() {
-				scoreProvider.refreshLiveMatches();
-				scoreProvider.getMatchUIDs();
-			}
-		});
-		refreshThread.start();
+		scoreProvider.refreshLiveMatches();
+		scoreProvider.getMatchUIDs();
 	}
 	
 	public IScoreProvider switchProvider(IScoreProvider scoreProvider) {
