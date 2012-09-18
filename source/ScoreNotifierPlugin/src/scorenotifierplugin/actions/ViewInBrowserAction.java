@@ -11,8 +11,8 @@ public class ViewInBrowserAction extends ScorePullDownAction {
 
 	private static final String CRIC_BUZZ_FEED_URL = "http://synd.cricbuzz.com/score-gadget/gadget-scores-feed.xml";
 	private static final String CRIC_BUZZ_MOBILE_FEED_URL = "http://synd.cricbuzz.com/onmobile-togo/";
-	private static final String CRIC_BUZZ_FEED = "Cric Buzz Feed";
-	private static final String CRIC_BUZZ_MOBILE_FEED = "Cric Buzz Mobile Feed";
+	public static final String CRIC_BUZZ_FEED = "CricBuzz Feed Provider (Compact)";
+	public static final String CRIC_BUZZ_DETAILED_FEED = "CricBuzz Feed Provider (Detailed)";
 
 	@Override
 	protected List<String> getAvailableItems() {
@@ -33,7 +33,7 @@ public class ViewInBrowserAction extends ScorePullDownAction {
 		} else if (matchURL.equals(CRIC_BUZZ_FEED_URL)) {
 			return CRIC_BUZZ_FEED;
 		} else if (matchURL.equals(CRIC_BUZZ_MOBILE_FEED_URL)) {
-			return CRIC_BUZZ_MOBILE_FEED;
+			return CRIC_BUZZ_DETAILED_FEED;
 		}
 		return super.getDisplayName(matchURL);
 	}

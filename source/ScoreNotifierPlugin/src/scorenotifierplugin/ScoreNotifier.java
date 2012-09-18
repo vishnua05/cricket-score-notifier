@@ -16,15 +16,20 @@ import java.util.TimerTask;
 
 import org.eclipse.swt.widgets.Display;
 
+import scorenotifierplugin.actions.SwitchProviderAction;
 import scorenotifierplugin.preferences.ScoreNotifierPreferences;
+import scorenotifierplugin.provider.CricBuzzScoreProvider;
 import scorenotifierplugin.provider.EndOfScoreException;
 import scorenotifierplugin.provider.IScoreParser;
 import scorenotifierplugin.provider.IScoreProvider;
 import scorenotifierplugin.provider.ScoreNode;
+import scorenotifierplugin.provider.mobile.MobileCricBuzzScoreProvider;
 import scorenotifierplugin.util.NotifierDialog;
 import scorenotifierplugin.util.ScoreEvent;
 
 public class ScoreNotifier {
+	public static IScoreProvider mainProvider = new CricBuzzScoreProvider();
+	public static IScoreProvider alternateProvider = new MobileCricBuzzScoreProvider();
 
 	public static final String NONE_AVAILABLE = "No Live Matches Avaiable";
 	protected static final String DELIMITER = ", ";
@@ -239,6 +244,36 @@ public class ScoreNotifier {
 	}
 
 	public void refreshLiveMatches() {
-		scoreProvider.refreshLiveMatches();
+		Thread refreshThread = new Thread(new Runnable() {
+			public void run() {
+				scoreProvider.refreshLiveMatches();
+				scoreProvider.getMatchUIDs();
+			}
+		});
+		refreshThread.start();
+	}
+	
+	public IScoreProvider switchProvider(IScoreProvider scoreProvider) {
+		IScoreProvider lastProvider = this.scoreProvider;
+		for (String matchUrl : getActiveURLs()) {
+			stop(matchUrl);
+		}
+		this.scoreProvider = scoreProvider;
+		refreshLiveMatches();
+		return lastProvider;
+	}
+	
+	private static ScoreNotifier mainInstance;
+
+	public static ScoreNotifier getMainInstance() {
+		if (mainInstance == null) {
+			mainInstance = new ScoreNotifier(ScoreNotifier.mainProvider);
+			mainInstance.refreshLiveMatches();
+			// check the preference and update initial provider
+			if (SwitchProviderAction.isAlternateProviderUsed()) {
+				mainInstance.switchProvider(ScoreNotifier.alternateProvider);
+			}
+		}
+		return mainInstance;
 	}
 }

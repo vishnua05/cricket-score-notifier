@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import scorenotifierplugin.actions.ViewInBrowserAction;
+
 public class CricBuzzScoreProvider implements IScoreProvider {
 
 	private static final String MATCH = "match";
@@ -124,7 +126,7 @@ public class CricBuzzScoreProvider implements IScoreProvider {
 
 	@Override
 	public String toString() {
-		return "Cric Buzz Score Provider";
+		return  ViewInBrowserAction.CRIC_BUZZ_FEED;
 	}
 
 	public void refreshLiveMatches() {
