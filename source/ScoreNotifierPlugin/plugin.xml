@@ -97,6 +97,13 @@
                menubarPath="additions"
                style="push">
          </action>
+         <action
+               class="scorenotifierplugin.actions.SwitchProviderAction"
+               id="scorenotifierplugin.actions.SwitchProviderAction"
+               label="Switch Score Provider"
+               menubarPath="additions"
+               style="push">
+         </action>
       </viewContribution>
    </extension>
 

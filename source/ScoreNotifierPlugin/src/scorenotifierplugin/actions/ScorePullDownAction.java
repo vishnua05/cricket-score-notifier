@@ -6,14 +6,14 @@ import java.util.Set;
 import org.eclipse.ui.IViewPart;
 
 import scorenotifierplugin.ScoreNotifier;
-import scorenotifierplugin.provider.mobile.MobileCricBuzzScoreProvider;
 
 public class ScorePullDownAction extends PullDownAction {
 	static ScoreNotifier scoreNotifier;
+	
 
 	final public void init(IViewPart view) {
 		if (scoreNotifier == null) {
-			scoreNotifier = new ScoreNotifier(new MobileCricBuzzScoreProvider());
+			scoreNotifier = ScoreNotifier.getMainInstance();
 		}
 	}
 

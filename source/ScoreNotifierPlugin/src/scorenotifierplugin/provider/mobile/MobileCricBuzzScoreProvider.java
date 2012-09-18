@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import scorenotifierplugin.actions.ViewInBrowserAction;
 import scorenotifierplugin.provider.EndOfScoreException;
 import scorenotifierplugin.provider.IScoreParser;
 import scorenotifierplugin.provider.IScoreProvider;
@@ -67,5 +68,10 @@ public class MobileCricBuzzScoreProvider implements IScoreProvider {
 	public void refreshLiveMatches() {
 		liveMatches = null;
 	}
-
+	
+	@Override
+	public String toString() {
+		return ViewInBrowserAction.CRIC_BUZZ_DETAILED_FEED;
+	}
+  
 }
