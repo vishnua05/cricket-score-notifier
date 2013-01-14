@@ -16,6 +16,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
@@ -66,6 +67,8 @@ public class OpenResourceLocationHandler extends AbstractHandler {
 					if (fileLocation.isEmpty()) {
 						fileLocation = ((Text) control).getText().trim();
 					}
+				} else if (control instanceof Combo) {
+					fileLocation = ((Combo) control).getText();
 				} else if (control instanceof Label) {
 					fileLocation = ((Label) control).getText();
 				} else if (control instanceof Tree) {
