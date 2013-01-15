@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/GoogleSearchFeature_1.0.0.201301152351.jar" id="GoogleSearchFeature" version="1.0.0.201301152351">
+   <feature url="features/GoogleSearchFeature_1.0.0.201301160004.jar" id="GoogleSearchFeature" version="1.0.0.201301160004">
       <category name="Eclipse_Utility"/>
    </feature>
    <category-def name="Eclipse_Utility" label="Eclipse Utilities"/>

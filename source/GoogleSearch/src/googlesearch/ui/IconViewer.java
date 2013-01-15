@@ -363,20 +363,22 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 		 * @return 32*32 icon
 		 */
 		public Image getIcon() {
-			return icon;
+			return icon != null && !icon.isDisposed() ? icon : null;
 		}
 
-		public void dispose() { 
+		public synchronized void dispose() { 
 			if (icon != null) {
 				icon.dispose();
+				icon = null;
 			}
 			if (image != null) {
 				image.dispose();
+				image = null;
 			}
 		} 
 		
-		public void ensureLoaded() {
-			if (image == null) {
+		public synchronized void ensureLoaded() {
+			if (image == null || image.isDisposed()) {
 				ImageData data = new ImageData(file.getLocation().makeAbsolute().toFile().getAbsolutePath());
 				image = new Image(Display.getDefault(), data);
 				icon = new Image(Display.getDefault(), 32, 32);
@@ -388,7 +390,7 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 		}
 
 		public Image getImage() {
-			return image;
+			return image != null  && !image.isDisposed() ? image : null;
 		}
 
 		public String getText() {
