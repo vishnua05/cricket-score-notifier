@@ -1,9 +1,8 @@
 package googlesearch.ui;
 
-import googlesearch.SWTResourceUtil;
-
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,8 +57,6 @@ import org.eclipse.ui.part.ViewPart;
 public class IconViewer extends ViewPart implements ISelectionListener {
 
 	public static final String ID = "googlesearch.ui.IconViewer";
-	private List<Image> imageList = new ArrayList<Image>();
-	private List<Image> iconList = new ArrayList<Image>();
 	private SashForm sash;
 	//	private Table table;
 	private TableViewer tableViewer;
@@ -67,7 +64,7 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 	public static final String[] SUPPORTED_IMAGE_TYPES = { "gif", "png", "jpg", "jpeg", "bmp" };
 	private IContainer lastSelection;
 	private int lastSelectionCount;
-	private Map<IFile, IconObject> tableObjectCache = new HashMap<IFile, IconObject>();
+	private Map<IFile, IconObject> tableObjectCache = Collections.synchronizedMap(new LinkedHashMap<IFile, IconObject>());
 	private Text filterText;
 
 	public IconViewer() {
@@ -88,6 +85,7 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 	public void dispose() {
 		getSite().getPage().removeSelectionListener(this);
 		sash.dispose();
+		cleanupIcons();
 		super.dispose();
 	}
 
@@ -121,12 +119,7 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 			if (selectionChanged) {
 				// table.removeAll();
 				canvas.setImage(null);
-				for (int i = 0; i < imageList.size(); i++) {
-					imageList.get(i).dispose();
-					iconList.get(i).dispose();
-				}
-				imageList.clear();
-				iconList.clear();
+				cleanupIcons();
 				tableObjectCache.clear();
 				lastSelection = folder;
 				lastSelectionCount = currentSelectionCount;
@@ -145,6 +138,9 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 						}
 					}
 				}
+				// cancel old job
+				loadIconsJob.cancel();
+				loadIconsJob.schedule();
 				tableViewer.refresh();
 			}
 
@@ -152,6 +148,7 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 			if (iconObject != null) {
 				tableViewer.setSelection(new StructuredSelection(iconObject));
 				tableViewer.reveal(iconObject);
+				iconObject.ensureLoaded();
 				canvas.setImage(iconObject.getImage());
 			} else {
 				tableViewer.getTable().select(0);
@@ -162,29 +159,54 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 		}
 	}
 
-	private Image addImage(IFile file) {
+
+	public void cleanupIcons() {
+		List<IconObject> icons = new ArrayList<IconViewer.IconObject>();
+		synchronized (tableObjectCache) {
+			icons.addAll(tableObjectCache.values());
+		}
+		for (IconObject icon : icons) {
+			icon.dispose();
+		}
+	}
+	
+	private Job loadIconsJob = new Job("Loading icons") {
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			List<IconObject> icons2Load = new ArrayList<IconViewer.IconObject>();
+			synchronized (tableObjectCache) {
+				icons2Load.addAll(tableObjectCache.values());
+			}
+			monitor.beginTask("Loading Icons", icons2Load.size());
+			
+			boolean isCancelled = false;
+			for (IconObject iconObject : icons2Load) {
+				if (monitor.isCanceled()) {
+					isCancelled = true;
+					break;
+				}
+				monitor.subTask(iconObject.getText());
+				iconObject.ensureLoaded();
+			}
+			
+			if (isCancelled) {
+				for (IconObject iconObject : icons2Load) {
+					iconObject.dispose();
+				}
+			}
+			
+			refreshJob.schedule();
+			return Status.OK_STATUS;
+		}
+	};
+
+	private void addImage(IFile file) {
 		try {
-			ImageData data = new ImageData(file.getLocation().makeAbsolute().toFile().getAbsolutePath());
-			Image image = new Image(Display.getDefault(), data);
-
-			Image icon = new Image(Display.getDefault(), 32, 32);
-			GC gc = new GC(icon);
-			gc.drawImage(image, 0, 0, image.getImageData().width, image.getImageData().height, 0, 0, 32, 32);
-			gc.dispose();
-
-			String text = file.getName() + " (" + image.getImageData().width + " * " + image.getImageData().height
-					+ ")";
-			/* TableItem item = new TableItem(table, SWT.NULL); item.setImage(icon); item.setText(text); */
-			IconObject iconObject = new IconObject(text, icon, image, file);
+			IconObject iconObject = new IconObject(file);
 			tableObjectCache.put(file, iconObject);
-
-			imageList.add(image);
-			iconList.add(icon);
-			return image;
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		return null;
 	}
 
 	public void createPartControl(Composite parent) {
@@ -233,7 +255,6 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 
 		canvas = new ScaleableImageCanvas(composite, SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, true).span(2, 1).applyTo(canvas);
-		SWTResourceUtil.cleanupOnDispose(sash, imageList);
 	}
 
 	private Job refreshJob = new Job("") {
@@ -327,11 +348,8 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 		private String text;
 		private IFile file;
 
-		public IconObject(String text, Image icon, Image image, IFile file) {
-			this.text = text;
-			this.icon = icon;
+		public IconObject(IFile file) {
 			this.file = file;
-			this.image = image;
 		}
 
 		public IFile getFile() {
@@ -346,11 +364,35 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 			return icon;
 		}
 
+		public void dispose() { 
+			if (icon != null) {
+				icon.dispose();
+			}
+			if (image != null) {
+				image.dispose();
+			}
+		} 
+		
+		public void ensureLoaded() {
+			if (image == null) {
+				ImageData data = new ImageData(file.getLocation().makeAbsolute().toFile().getAbsolutePath());
+				image = new Image(Display.getDefault(), data);
+				icon = new Image(Display.getDefault(), 32, 32);
+				text = file.getName() + " (" + image.getImageData().width + " * " + image.getImageData().height + ")";
+				GC gc = new GC(icon);
+				gc.drawImage(image, 0, 0, image.getImageData().width, image.getImageData().height, 0, 0, 32, 32);
+				gc.dispose();
+			}
+		}
+
 		public Image getImage() {
 			return image;
 		}
 
 		public String getText() {
+			if (text == null) {
+				return file.getName();
+			}
 			return text;
 		}
 
