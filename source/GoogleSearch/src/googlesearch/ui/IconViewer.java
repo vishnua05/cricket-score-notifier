@@ -145,14 +145,15 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 			}
 
 			IconObject iconObject = tableObjectCache.get(selectedFile);
+			if (iconObject == null && !tableObjectCache.isEmpty()) {
+				iconObject = tableObjectCache.values().iterator().next();
+			}
 			if (iconObject != null) {
 				tableViewer.setSelection(new StructuredSelection(iconObject));
 				tableViewer.reveal(iconObject);
 				iconObject.ensureLoaded();
 				canvas.setImage(iconObject.getImage());
-			} else {
-				tableViewer.getTable().select(0);
-			}
+			} 
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -187,6 +188,7 @@ public class IconViewer extends ViewPart implements ISelectionListener {
 				}
 				monitor.subTask(iconObject.getText());
 				iconObject.ensureLoaded();
+				monitor.worked(1);
 			}
 			
 			if (isCancelled) {
