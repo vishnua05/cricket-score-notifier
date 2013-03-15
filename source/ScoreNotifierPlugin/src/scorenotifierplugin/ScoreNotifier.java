@@ -114,11 +114,13 @@ public class ScoreNotifier {
 					if (scoreNode.isCommentaryNode()) {
 						logger.log(matchURL, date + commentary);
 					}
-					String log = date + scoreNode.getScore();
+					String log = scoreNode.getScore();
 					if (!scoreNode.isCommentaryNode()) {
 						if (scoreNode.getRunsOfBall() != -1) {
 							log = log + "  {" + scoreNode.getRunsOfBall() + "}";
 						}
+						logger.updateStatusBar(log);
+						log = date + log;
 						logger.log(matchURL, log, scoreNode.getScore());
 						if (scoreNode.isEndOfOver()) {
 
@@ -241,6 +243,7 @@ public class ScoreNotifier {
 		logger.log(matchURL, "Stopped receiving Score Notifications from: " + getDisplayName(matchURL));
 		// pass null to indicate end of logging
 		logger.log(matchURL, null);
+		logger.clearStatusBar();
 	}
 
 	public void refreshLiveMatches() {
